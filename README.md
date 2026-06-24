@@ -2,14 +2,15 @@
 
 ![Logo UPS](assets/00-ups-icc.png)
 
-# Frameworks Backend: Spring Boot – Instalación y Configuración
+# Frameworks Backend: Spring Boot – Persistencia con JPA, Entidades, Repositorios y Base de Datos
 
 <div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="100" alt="Spring Boot Logo">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="95">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" width="95">
 </div>
 
 
-## Práctica 1 (Spring Boot): Instalación, Configuración Inicial y Primer Endpoint
+# Práctica 5 (Spring Boot): Persistencia real con PostgreSQL, Entidades JPA y Repositorios
 
 ## Autores
 
@@ -23,38 +24,31 @@
 ## Capturas de Pantalla
 
 
-### 1. Captura de verificación de Java
-**Descripción:** EValidación de que el entorno está configurado con Java 17 (Temurin).
+### 1. Captura del metodo POST para ingresar cinco productos
+**Descripción:** Evidencia de la ejecución exitosa de peticiones HTTP con el método `POST` hacia el endpoint `/api/products` utilizando Postman. Se observa el envío de la estructura en formato JSON (`CreateProductDto`) y la respuesta correcta del servidor con un estado `200 OK` / `201 Created`, retornando el producto persistido con su identificador único (`id`) asignado dinámicamente
+![Post](./assets/06-postman.png)
 
-![Java](./assets/01-java-version.png)
+### 2. Captura del DBeaver
+**Descripción:** Verificación de la persistencia real en el entorno de base de datos a través de DBeaver. Mediante la ejecución de la consulta sugerida *SELECT * FROM products;*, se comprueba que las cinco entidades fueron almacenadas correctamente en la tabla de PostgreSQL (`devdb`) gestionada dentro del contenedor Docker. Se evidencia la asignación secuencial de las claves primarias y el funcionamiento de los campos de auditoría heredados de `BaseEntity`.
+![Dbeaver](assets/07dbeaver.png)
 
-### 2. Captura del servidor Spring Boot ejecutándose
-**Descripción:** Ejecución exitosa del servidor embebido de Spring Boot.
-
-![Servidor-SpringBoot](./assets/02-servidor-tomcat.png)
-
-
-### 3. Captura del endpoint /api/status funcionando en el navegador o Postman o Bruno
-**Descripción:** Respuesta del endpoint REST verificado en el navegador.
-
-![endpoint](./assets/03-endpoint-json.png)
-
-
-### 4. Captura del siguiente comando en terminal
-**Descripción:** Estructura de paquetes y archivos implementada según la práctica.
-
-![terminal](./assets/05-comando-ls.png)
-![terminalTree](./assets/04-estructura-controller.png)
 
 ---
 
-## Explicación breve escrita por el estudiante
+## Explicación del Flujo de Datos Completo (API REST ↔ PostgreSQL)
 
-### 1. ¿Cómo funciona el endpoint creado?
+### 1. Petición (Ida)
 
-El endpoint /api/status actúa como un punto de acceso entre el usuario y la aplicación. Cuando se realiza una solicitud a esa dirección, Spring Boot recibe la petición, ejecuta el método correspondiente y devuelve una respuesta con información del sistema, como el nombre del servicio y la hora actual. Estos datos se envían en formato JSON, lo que facilita su lectura e intercambio entre aplicaciones.
+El cliente, por ejemplo Postman, envía una solicitud HTTP con los datos en formato JSON. El controlador recibe la petición y la envía al servicio, donde se ejecuta la lógica de negocio correspondiente.
 
-### 2. ¿Cuál es la función general de Spring Boot en la creación del servidor?
+### 2. Transformación y Persistencia
 
-Spring Boot simplifica el desarrollo de aplicaciones web al proporcionar una estructura y configuración ya preparadas. Gracias a esto, no es necesario configurar manualmente cada componente del servidor, ya que el framework incorpora las herramientas necesarias para ejecutar la aplicación. Esto permite desarrollar y poner en marcha un servidor de forma más rápida, reduciendo la complejidad y facilitando el mantenimiento del proyecto.
+En la capa de servicio, los datos recibidos se transforman de un DTO a un modelo interno y luego a una entidad. Después, el repositorio utiliza Hibernate para guardar la información en la base de datos PostgreSQL mediante una operación de inserción.
 
+### 3. Rol de BaseEntity
+
+La entidad hereda de la clase BaseEntity, que proporciona automáticamente campos comunes como el identificador, las fechas de creación y actualización, y el estado lógico del registro. Además, estos valores se gestionan de forma automática mediante anotaciones de persistencia, evitando código repetitivo.
+
+### 4. Respuesta (Vuelta)
+
+Una vez almacenados los datos, PostgreSQL genera el identificador del registro y devuelve la información guardada. Posteriormente, la entidad se transforma en un DTO de respuesta y se envía al cliente con un estado HTTP exitoso.

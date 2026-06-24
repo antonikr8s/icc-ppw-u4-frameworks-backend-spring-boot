@@ -1,14 +1,8 @@
 package ec.edu.ups.icc.fundamentos01.users.controllers;
 
-import ec.edu.ups.icc.fundamentos01.users.dtos.CreateUserDto;
-import ec.edu.ups.icc.fundamentos01.users.dtos.UpdateUserDto;
-import ec.edu.ups.icc.fundamentos01.users.dtos.PartialUpdateUserDto;
-import ec.edu.ups.icc.fundamentos01.users.dtos.UserResponseDto;
-import ec.edu.ups.icc.fundamentos01.users.mappers.UserMapper;
-import ec.edu.ups.icc.fundamentos01.users.models.UserModel;
+import ec.edu.ups.icc.fundamentos01.users.dtos.*;
+import ec.edu.ups.icc.fundamentos01.users.services.UserService;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,78 +10,71 @@ import java.util.Map;
 @RequestMapping("/users")
 public class UsersController {
 
-    private List<UserModel> users = new ArrayList<>();
-    private long currentId = 1; // Contador para autogenerar IDs únicos
+    private final UserService service;
 
-    // 1. GET ALL
+    public UsersController(UserService service) {
+        this.service = service;
+    }
+
     @GetMapping
-    public List<UserResponseDto> findAll() {
-        return users.stream()
-                .map(UserMapper::toResponse)
-                .toList();
-    }
+    public List<UserResponseDto> findAll() { return service.findAll(); }
 
-    // 2. GET BY ID
     @GetMapping("/{id}")
-    public Object findOne(@PathVariable long id) {
-        return users.stream()
-                .filter(u -> u.getId().equals(id))
-                .findFirst()
-                .map(user -> (Object) UserMapper.toResponse(user))
-                .orElse(Map.of("error", "User not found"));
-    }
+    public UserResponseDto findOne(@PathVariable Long id) { return service.findOne(id); }
 
-    // 3. POST (Corrección: Aquí se asigna el ID secuencial antes de guardar)
     @PostMapping
-    public UserResponseDto create(@RequestBody CreateUserDto dto) {
-        UserModel user = UserMapper.toModel(dto);
-        user.setId(currentId++); // Asigna el ID actual e incrementa para el siguiente
-        users.add(user);
-        return UserMapper.toResponse(user);
-    }
+    public UserResponseDto create(@RequestBody CreateUserDto dto) { return service.create(dto); }
 
-    // 4. PUT
     @PutMapping("/{id}")
-    public Object update(@PathVariable long id, @RequestBody UpdateUserDto dto) {
-        UserModel user = users.stream()
-                .filter(u -> u.getId().equals(id))
-                .findFirst()
-                .orElse(null);
-
-        if (user == null) {
-            return Map.of("error", "UserModel not found");
-        }
-
-        user.setName(dto.getName());
-        user.setEmail(dto.getEmail());
-        return UserMapper.toResponse(user);
+    public UserResponseDto update(@PathVariable Long id, @RequestBody UpdateUserDto dto) {
+        return service.update(id, dto);
     }
 
-    // 5. PATCH
     @PatchMapping("/{id}")
-    public Object partialUpdate(@PathVariable long id, @RequestBody PartialUpdateUserDto dto) {
-        UserModel user = users.stream()
-                .filter(u -> u.getId().equals(id))
-                .findFirst()
-                .orElse(null);
-
-        if (user == null) {
-            return Map.of("error", "UserModel not found");
-        }
-
-        if (dto.getName() != null) user.setName(dto.getName());
-        if (dto.getEmail() != null) user.setEmail(dto.getEmail());
-
-        return UserMapper.toResponse(user);
+    public UserResponseDto partialUpdate(@PathVariable Long id, @RequestBody PartialUpdateUserDto dto) {
+        return service.partialUpdate(id, dto);
     }
 
-    // 6. DELETE
     @DeleteMapping("/{id}")
-    public Object delete(@PathVariable long id) {
-        boolean exists = users.removeIf(u -> u.getId().equals(id));
-        if (!exists) {
-            return Map.of("error", "User not found");
-        }
+    public Map<String, String> delete(@PathVariable Long id) {
+        service.delete(id);
         return Map.of("message", "Deleted successfully");
     }
 }
+/*package ec.edu.ups.icc.fundamentos01.users.controllers;
+
+import ec.edu.ups.icc.fundamentos01.users.dtos.*;
+import ec.edu.ups.icc.fundamentos01.users.services.UserService;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
+@RestController
+@RequestMapping("/users")
+public class UsersController {
+
+    private final UserService service;
+
+    public UsersController(UserService service) {
+        this.service = service;
+    }
+
+    @GetMapping
+    public List<UserResponseDto> findAll() { return service.findAll(); }
+
+    @GetMapping("/{id}")
+    public Object findOne(@PathVariable Long id) { return service.findOne(id); }
+
+    @PostMapping
+    public UserResponseDto create(@RequestBody CreateUserDto dto) { return service.create(dto); }
+
+    @PutMapping("/{id}")
+    public Object update(@PathVariable Long id, @RequestBody UpdateUserDto dto) { return service.update(id, dto); }
+
+    @PatchMapping("/{id}")
+    public Object partialUpdate(@PathVariable Long id, @RequestBody PartialUpdateUserDto dto) { return service.partialUpdate(id, dto); }
+
+    @DeleteMapping("/{id}")
+    public Object delete(@PathVariable Long id) { return service.delete(id); }
+}
+
+ */
