@@ -2,15 +2,15 @@
 
 ![Logo UPS](assets/00-ups-icc.png)
 
-# Frameworks Backend: Spring Boot – Persistencia con JPA, Entidades, Repositorios y Base de Datos
+# Frameworks Backend: Spring Boot – DTOs, Validación y Reglas de Entrada
 
 <div align="center">
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="95">
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" width="95">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" width="95">
 </div>
 
 
-# Práctica 5 (Spring Boot): Persistencia real con PostgreSQL, Entidades JPA y Repositorios
+# Práctica 6 (Spring Boot): Validación de DTOs y Control de Datos de Entrada
 
 ## Autores
 
@@ -36,7 +36,23 @@
 **Descripción:** Evidencia del estado final de la base de datos `devdb` en DBeaver tras la ejecución del escenario de pruebas solicitado en clase. Se verifica el correcto funcionamiento del ciclo de vida de los datos gestionados por JPA e Hibernate a través de las siguientes observaciones:
 ![Update](assets/08-update.png)
 
+### Prueba 1: Validar formato erróneo
+![Bad](assets/09-Bad400.png)
 
+### Prueba 2: Crear un producto válido
+![Okk](assets/10-Ok200.png)
+
+### Prueba 3: Validar regla de negocio - Eliminar el producto
+![Delete](assets/11-Delete.png)
+
+### Prueba 4: Validar regla de negocio - Intentar actualizar un producto eliminado
+![Internal](assets/12-Internal500.png)
+
+### Prueba 5: Validar regla de negocio - `findAll`
+![Get](assets/13-Get.png)
+
+### Verificar en DBeaver
+![Update](assets/14-Update.png)
 ---
 
 ## Explicación del Flujo de Datos Completo (API REST ↔ PostgreSQL)

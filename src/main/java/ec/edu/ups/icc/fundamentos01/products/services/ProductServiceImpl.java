@@ -2,8 +2,7 @@ package ec.edu.ups.icc.fundamentos01.products.services;
 
 import ec.edu.ups.icc.fundamentos01.products.dtos.*;
 import ec.edu.ups.icc.fundamentos01.products.entities.ProductEntity;
-import ec.edu.ups.icc.fundamentos01.products.mappers.ProductMapper;
-import ec.edu.ups.icc.fundamentos01.products.models.ProductModel;
+import ec.edu.ups.icc.fundamentos01.products.models.Product;
 import ec.edu.ups.icc.fundamentos01.products.repositories.ProductRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -21,135 +20,55 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductResponseDto> findAll() {
         return productRepository.findAll()
                 .stream()
-                .map(ProductMapper::toModelFromEntity)
-                .map(ProductMapper::toResponse)
+                .filter(e -> !e.isDeleted())
+                .map(Product::fromEntity)
+                .map(Product::toResponseDto)
                 .toList();
     }
 
     @Override
     public ProductResponseDto findOne(Long id) {
-        return productRepository.findById(id)
-                .map(ProductMapper::toModelFromEntity)
-                .map(ProductMapper::toResponse)
+        ProductEntity entity = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Product not found"));
+        if (entity.isDeleted()) throw new IllegalStateException("Product not found");
+        return Product.fromEntity(entity).toResponseDto();
     }
 
     @Override
     public ProductResponseDto create(CreateProductDto dto) {
-        ProductModel model = ProductMapper.toModelFromDTO(dto);
-        ProductEntity entity = ProductMapper.toEntityFromModel(model);
-        ProductEntity saved = productRepository.save(entity);
-        return ProductMapper.toResponse(ProductMapper.toModelFromEntity(saved));
+        Product product = Product.fromDto(dto);
+        ProductEntity saved = productRepository.save(product.toEntity());
+        return Product.fromEntity(saved).toResponseDto();
     }
 
     @Override
     public ProductResponseDto update(Long id, UpdateProductDto dto) {
         ProductEntity entity = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Product not found"));
-        entity.setName(dto.getName());
-        entity.setPrice(dto.getPrice());
-        entity.setStock(dto.getStock());
-        ProductEntity saved = productRepository.save(entity);
-        return ProductMapper.toResponse(ProductMapper.toModelFromEntity(saved));
+        if (entity.isDeleted()) throw new IllegalStateException("Cannot update a deleted product");
+        Product product = Product.fromEntity(entity);
+        product.update(dto);
+        ProductEntity saved = productRepository.save(product.toEntity());
+        return Product.fromEntity(saved).toResponseDto();
     }
 
     @Override
     public ProductResponseDto partialUpdate(Long id, PartialUpdateProductDto dto) {
         ProductEntity entity = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Product not found"));
-        if (dto.getName() != null) entity.setName(dto.getName());
-        if (dto.getPrice() != null) entity.setPrice(dto.getPrice());
-        if (dto.getStock() != null) entity.setStock(dto.getStock());
-        ProductEntity saved = productRepository.save(entity);
-        return ProductMapper.toResponse(ProductMapper.toModelFromEntity(saved));
+        if (entity.isDeleted()) throw new IllegalStateException("Cannot update a deleted product");
+        Product product = Product.fromEntity(entity);
+        product.partialUpdate(dto);
+        ProductEntity saved = productRepository.save(product.toEntity());
+        return Product.fromEntity(saved).toResponseDto();
     }
 
     @Override
     public void delete(Long id) {
         ProductEntity entity = productRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Product not found"));
+        if (entity.isDeleted()) throw new IllegalStateException("Product already deleted");
         entity.setDeleted(true);
         productRepository.save(entity);
     }
 }
-
-/*
-package ec.edu.ups.icc.fundamentos01.products.services;
-
-import ec.edu.ups.icc.fundamentos01.core.dto.ErrorResponseDto;
-import ec.edu.ups.icc.fundamentos01.products.dtos.*;
-import ec.edu.ups.icc.fundamentos01.products.mappers.ProductMapper;
-import ec.edu.ups.icc.fundamentos01.products.models.ProductModel;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-@Service
-public class ProductServiceImpl implements ProductService {
-
-    private List<ProductModel> products = new ArrayList<>();
-    private Long currentId = 1L;
-
-    @Override
-    public List<ProductResponseDto> findAll() {
-        return products.stream()
-                .map(ProductMapper::toResponse)
-                .toList();
-    }
-
-    @Override
-    public Object findOne(Long id) {
-        return products.stream()
-                .filter(p -> p.getId().equals(id))
-                .findFirst()
-                .map(p -> (Object) ProductMapper.toResponse(p))
-                .orElseGet(() -> new ErrorResponseDto("Product not found"));
-    }
-
-    @Override
-    public ProductResponseDto create(CreateProductDto dto) {
-        ProductModel product = ProductMapper.toModel(dto);
-        product.setId(currentId++);
-        products.add(product);
-        return ProductMapper.toResponse(product);
-    }
-
-    @Override
-    public Object update(Long id, UpdateProductDto dto) {
-        ProductModel product = products.stream()
-                .filter(p -> p.getId().equals(id))
-                .findFirst().orElse(null);
-
-        if (product == null) return new ErrorResponseDto("Product not found");
-
-        product.setName(dto.getName());
-        product.setPrice(dto.getPrice());
-        product.setStock(dto.getStock());
-        return ProductMapper.toResponse(product);
-    }
-
-    @Override
-    public Object partialUpdate(Long id, PartialUpdateProductDto dto) {
-        ProductModel product = products.stream()
-                .filter(p -> p.getId().equals(id))
-                .findFirst().orElse(null);
-
-        if (product == null) return new ErrorResponseDto("Product not found");
-
-        if (dto.getName() != null) product.setName(dto.getName());
-        if (dto.getPrice() != null) product.setPrice(dto.getPrice());
-        if (dto.getStock() != null) product.setStock(dto.getStock());
-        return ProductMapper.toResponse(product);
-    }
-
-    @Override
-    public Object delete(Long id) {
-        boolean removed = products.removeIf(p -> p.getId().equals(id));
-        if (!removed) return new ErrorResponseDto("Product not found");
-        return Map.of("message", "Deleted successfully");
-    }
-}
-
- */
