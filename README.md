@@ -2,7 +2,7 @@
 
 ![Logo UPS](assets/00-ups-icc.png)
 
-# # Frameworks Backend: Spring Boot – Control Global de Errores y Excepciones
+# Frameworks Backend: Spring Boot – Control Global de Errores y Excepciones
 
 <div align="center">
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="95">

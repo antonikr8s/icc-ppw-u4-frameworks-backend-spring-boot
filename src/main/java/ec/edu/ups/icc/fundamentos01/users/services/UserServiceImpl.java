@@ -56,8 +56,11 @@ public class UserServiceImpl implements UserService {
         if (entity.isDeleted()) throw new NotFoundException("User not found");
         entity.setName(dto.getName());
         entity.setEmail(dto.getEmail());
-        UserEntity saved = userRepository.save(entity);
-        return UserMapper.toResponse(UserMapper.toModelFromEntity(saved));
+
+        entity.setPasswordHash("HASH_" + dto.getPassword());
+        UserEntity savedEntity = userRepository.save(entity);
+        UserModel model = UserMapper.toModelFromEntity(savedEntity);
+        return UserMapper.toResponse(model);
     }
 
     @Override
