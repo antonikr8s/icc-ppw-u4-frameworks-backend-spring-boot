@@ -1,5 +1,7 @@
 package ec.edu.ups.icc.fundamentos01.products.services;
 
+import ec.edu.ups.icc.fundamentos01.core.exceptions.domain.ConflictException;
+import ec.edu.ups.icc.fundamentos01.core.exceptions.domain.NotFoundException;
 import ec.edu.ups.icc.fundamentos01.products.dtos.*;
 import ec.edu.ups.icc.fundamentos01.products.entities.ProductEntity;
 import ec.edu.ups.icc.fundamentos01.products.models.Product;
@@ -29,13 +31,16 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponseDto findOne(Long id) {
         ProductEntity entity = productRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Product not found"));
-        if (entity.isDeleted()) throw new IllegalStateException("Product not found");
+                .orElseThrow(() -> new NotFoundException("Product not found"));
+        if (entity.isDeleted()) throw new NotFoundException("Product not found");
         return Product.fromEntity(entity).toResponseDto();
     }
 
     @Override
     public ProductResponseDto create(CreateProductDto dto) {
+        productRepository.findByName(dto.getName()).ifPresent(e -> {
+            if (!e.isDeleted()) throw new ConflictException("Product name already registered");
+        });
         Product product = Product.fromDto(dto);
         ProductEntity saved = productRepository.save(product.toEntity());
         return Product.fromEntity(saved).toResponseDto();
@@ -44,8 +49,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponseDto update(Long id, UpdateProductDto dto) {
         ProductEntity entity = productRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Product not found"));
-        if (entity.isDeleted()) throw new IllegalStateException("Cannot update a deleted product");
+                .orElseThrow(() -> new NotFoundException("Product not found"));
+        if (entity.isDeleted()) throw new NotFoundException("Product not found");
         Product product = Product.fromEntity(entity);
         product.update(dto);
         ProductEntity saved = productRepository.save(product.toEntity());
@@ -55,8 +60,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponseDto partialUpdate(Long id, PartialUpdateProductDto dto) {
         ProductEntity entity = productRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Product not found"));
-        if (entity.isDeleted()) throw new IllegalStateException("Cannot update a deleted product");
+                .orElseThrow(() -> new NotFoundException("Product not found"));
+        if (entity.isDeleted()) throw new NotFoundException("Product not found");
         Product product = Product.fromEntity(entity);
         product.partialUpdate(dto);
         ProductEntity saved = productRepository.save(product.toEntity());
@@ -66,8 +71,8 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public void delete(Long id) {
         ProductEntity entity = productRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Product not found"));
-        if (entity.isDeleted()) throw new IllegalStateException("Product already deleted");
+                .orElseThrow(() -> new NotFoundException("Product not found"));
+        if (entity.isDeleted()) throw new NotFoundException("Product not found");
         entity.setDeleted(true);
         productRepository.save(entity);
     }

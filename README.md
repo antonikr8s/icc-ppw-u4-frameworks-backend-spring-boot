@@ -2,15 +2,14 @@
 
 ![Logo UPS](assets/00-ups-icc.png)
 
-# Frameworks Backend: Spring Boot – DTOs, Validación y Reglas de Entrada
+# # Frameworks Backend: Spring Boot – Control Global de Errores y Excepciones
 
 <div align="center">
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="95">
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" width="95">
 </div>
 
 
-# Práctica 6 (Spring Boot): Validación de DTOs y Control de Datos de Entrada
+# Práctica 7 (Spring Boot): Manejo Global de Errores y Excepciones
 
 ## Autores
 
@@ -36,6 +35,8 @@
 **Descripción:** Evidencia del estado final de la base de datos `devdb` en DBeaver tras la ejecución del escenario de pruebas solicitado en clase. Se verifica el correcto funcionamiento del ciclo de vida de los datos gestionados por JPA e Hibernate a través de las siguientes observaciones:
 ![Update](assets/08-update.png)
 
+## Práctica 6 (Spring Boot): Validación de DTOs y Control de Datos de Entrada
+
 ### Prueba 1: Validar formato erróneo
 ![Bad](assets/09-Bad400.png)
 
@@ -53,6 +54,25 @@
 
 ### Verificar en DBeaver
 ![Update](assets/14-Update.png)
+
+## Práctica 7 (Spring Boot): Manejo Global de Errores y Excepciones
+
+### Prueba 1: Buscar producto inexistente
+![notFound](assets/15-notFound.png)
+
+### Prueba 2: Nombre de producto duplicado
+![Conflicto](assets/16-Conflicto.png)
+
+### Prueba 3: Validación estructurada de DTO
+![BadRequest](assets/17-BadRequest.png)
+
+### Prueba 4: Flujo de Eliminado Lógico a Inexistente
+![Error404](assets/18-Error404.png)
+
+
+### Actualización en DBeaver
+![Update-2](assets/19-Update-2.png)
+
 ---
 
 ## Explicación del Flujo de Datos Completo (API REST ↔ PostgreSQL)
