@@ -7,5 +7,10 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
+
+    // Tu método original intacto
     Optional<UserEntity> findByEmail(String email);
+
+    // Nuevo método necesario para validar relaciones en productos
+    boolean existsByIdAndDeletedFalse(Long id);
 }

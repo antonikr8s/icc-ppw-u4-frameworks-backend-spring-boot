@@ -3,6 +3,12 @@ package ec.edu.ups.icc.fundamentos01.products.models;
 import ec.edu.ups.icc.fundamentos01.products.dtos.*;
 import ec.edu.ups.icc.fundamentos01.products.entities.ProductEntity;
 
+// Importaciones necesarias para las relaciones
+import ec.edu.ups.icc.fundamentos01.users.entities.UserEntity;
+import ec.edu.ups.icc.fundamentos01.users.dtos.UserResponseDto;
+import ec.edu.ups.icc.fundamentos01.categories.entities.CategoryEntity;
+import ec.edu.ups.icc.fundamentos01.categories.dtos.CategoryResponseDto;
+
 public class Product {
 
     private Long id;
@@ -10,6 +16,10 @@ public class Product {
     private Double price;
     private Integer stock;
     private boolean deleted;
+
+    // Relaciones agregadas
+    private UserEntity owner;
+    private CategoryEntity category;
 
     public Product() {}
 
@@ -30,6 +40,11 @@ public class Product {
         p.price = entity.getPrice();
         p.stock = entity.getStock();
         p.deleted = entity.isDeleted();
+
+        // Extraer relaciones de la entidad
+        p.owner = entity.getOwner();
+        p.category = entity.getCategory();
+
         return p;
     }
 
@@ -40,6 +55,11 @@ public class Product {
         entity.setName(this.name);
         entity.setPrice(this.price);
         entity.setStock(this.stock);
+
+        // Pasar las relaciones a la entidad
+        entity.setOwner(this.owner);
+        entity.setCategory(this.category);
+
         return entity;
     }
 
@@ -50,6 +70,24 @@ public class Product {
         dto.setName(this.name);
         dto.setPrice(this.price);
         dto.setStock(this.stock);
+
+        // Mapeo seguro para evitar los NULLs en la respuesta anidada
+        if (this.owner != null) {
+            UserResponseDto ownerDto = new UserResponseDto();
+            ownerDto.setId(this.owner.getId());
+            ownerDto.setName(this.owner.getName());
+            ownerDto.setEmail(this.owner.getEmail());
+            dto.setOwner(ownerDto);
+        }
+
+        if (this.category != null) {
+            CategoryResponseDto categoryDto = new CategoryResponseDto();
+            categoryDto.setId(this.category.getId());
+            categoryDto.setName(this.category.getName());
+            categoryDto.setDescription(this.category.getDescription());
+            dto.setCategory(categoryDto);
+        }
+
         return dto;
     }
 
@@ -77,4 +115,10 @@ public class Product {
     public void setStock(Integer stock) { this.stock = stock; }
     public boolean isDeleted() { return deleted; }
     public void setDeleted(boolean deleted) { this.deleted = deleted; }
+
+    // Getters y Setters de las relaciones
+    public UserEntity getOwner() { return owner; }
+    public void setOwner(UserEntity owner) { this.owner = owner; }
+    public CategoryEntity getCategory() { return category; }
+    public void setCategory(CategoryEntity category) { this.category = category; }
 }

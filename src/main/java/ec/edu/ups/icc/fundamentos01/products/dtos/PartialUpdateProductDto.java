@@ -13,6 +13,9 @@ public class PartialUpdateProductDto {
     @Min(value = 0, message = "El stock no puede ser negativo")
     private Integer stock;
 
+    // Nuevo campo agregado
+    private Long categoryId;
+
     public PartialUpdateProductDto() {}
 
     public String getName() { return name; }
@@ -21,4 +24,8 @@ public class PartialUpdateProductDto {
     public void setPrice(Double price) { this.price = price; }
     public Integer getStock() { return stock; }
     public void setStock(Integer stock) { this.stock = stock; }
+
+    // Getters y setters del nuevo campo
+    public Long getCategoryId() { return categoryId; }
+    public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }
 }
