@@ -11,7 +11,11 @@ public interface ProductService {
     ProductResponseDto partialUpdate(Long id, PartialUpdateProductDto dto);
     void delete(Long id);
 
-    // --- Nuevos métodos agregados para la práctica 08 ---
+    // --- Métodos de la Práctica 08 ---
     List<ProductResponseDto> findByUserId(Long userId);
     List<ProductResponseDto> findByCategoryId(Long categoryId);
+
+    // --- NUEVOS MÉTODOS DE LA PRÁCTICA 09 (Filtros dinámicos) ---
+    List<ProductResponseDto> findByUserIdWithFilters(Long userId, ProductFilterByUserDto filters);
+    List<ProductResponseDto> findByCategoryIdWithFilters(Long categoryId, ProductFilterByUserDto filters);
 }

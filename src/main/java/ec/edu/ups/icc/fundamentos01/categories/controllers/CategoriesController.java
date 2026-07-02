@@ -4,23 +4,25 @@ import ec.edu.ups.icc.fundamentos01.categories.dtos.CategoryResponseDto;
 import ec.edu.ups.icc.fundamentos01.categories.dtos.CreateCategoryDto;
 import ec.edu.ups.icc.fundamentos01.categories.dtos.UpdateCategoryDto;
 import ec.edu.ups.icc.fundamentos01.categories.services.CategoryService;
+import ec.edu.ups.icc.fundamentos01.products.dtos.ProductFilterByUserDto;
+import ec.edu.ups.icc.fundamentos01.products.dtos.ProductResponseDto;
+import ec.edu.ups.icc.fundamentos01.products.services.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/*
- * Controlador REST encargado de exponer los endpoints HTTP
- * para la gestión de categorías.
- */
 @RestController
 @RequestMapping("/categories")
 public class CategoriesController {
 
     private final CategoryService service;
+    private final ProductService productService;
 
-    public CategoriesController(CategoryService service) {
+    // Constructor que inyecta ambos servicios requeridos por la práctica 09
+    public CategoriesController(CategoryService service, ProductService productService) {
         this.service = service;
+        this.productService = productService;
     }
 
     @GetMapping
@@ -49,5 +51,18 @@ public class CategoriesController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         service.delete(id);
+    }
+
+    // --- NUEVO ENDPOINT SEMÁNTICO DE LA PRÁCTICA 09 ---
+    /*
+     * Endpoint semántico requerido: GET /api/categories/{id}/products
+     * Permite filtrar los productos de esta categoría por query params
+     */
+    @GetMapping("/{id}/products")
+    public List<ProductResponseDto> findProductsByCategory(
+            @PathVariable Long id,
+            @Valid @ModelAttribute ProductFilterByUserDto filters
+    ) {
+        return productService.findByCategoryIdWithFilters(id, filters);
     }
 }

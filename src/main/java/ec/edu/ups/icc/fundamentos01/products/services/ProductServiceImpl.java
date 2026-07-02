@@ -4,9 +4,10 @@ import ec.edu.ups.icc.fundamentos01.categories.entities.CategoryEntity;
 import ec.edu.ups.icc.fundamentos01.categories.repositories.CategoryRepository;
 import ec.edu.ups.icc.fundamentos01.core.exceptions.domain.ConflictException;
 import ec.edu.ups.icc.fundamentos01.core.exceptions.domain.NotFoundException;
+import ec.edu.ups.icc.fundamentos01.core.exceptions.domain.BadRequestException; // Asegúrate de tener esta excepción creada
 import ec.edu.ups.icc.fundamentos01.products.dtos.*;
 import ec.edu.ups.icc.fundamentos01.products.entities.ProductEntity;
-import ec.edu.ups.icc.fundamentos01.products.models.Product; // Asegúrate de que coincida con tu paquete real
+import ec.edu.ups.icc.fundamentos01.products.models.Product;
 import ec.edu.ups.icc.fundamentos01.products.repositories.ProductRepository;
 import ec.edu.ups.icc.fundamentos01.users.entities.UserEntity;
 import ec.edu.ups.icc.fundamentos01.users.repositories.UserRepository;
@@ -49,29 +50,24 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ProductResponseDto create(CreateProductDto dto) {
-        // 1. Validar existencia y estado del usuario
         UserEntity owner = userRepository.findById(dto.getUserId())
                 .orElseThrow(() -> new NotFoundException("User not found"));
         if (owner.isDeleted()) {
             throw new NotFoundException("User not found");
         }
 
-        // 2. Validar existencia y estado de la categoría
         CategoryEntity category = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new NotFoundException("Category not found"));
         if (category.isDeleted()) {
             throw new NotFoundException("Category not found");
         }
 
-        // 3. Validar duplicados por nombre
         productRepository.findByNameIgnoreCaseAndDeletedFalse(dto.getName()).ifPresent(e -> {
             throw new ConflictException("Product name already registered");
         });
 
-        // 4. Mapear y asignar relaciones explícitamente a la entidad
         Product product = Product.fromDto(dto);
         ProductEntity entityToSave = product.toEntity();
-
         entityToSave.setOwner(owner);
         entityToSave.setCategory(category);
 
@@ -84,7 +80,6 @@ public class ProductServiceImpl implements ProductService {
         ProductEntity entity = productRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
 
-        // Validar la nueva categoría
         CategoryEntity category = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new NotFoundException("Category not found"));
         if (category.isDeleted()) {
@@ -95,7 +90,7 @@ public class ProductServiceImpl implements ProductService {
         product.update(dto);
 
         ProductEntity entityToSave = product.toEntity();
-        entityToSave.setCategory(category); // Actualiza la relación de categoría
+        entityToSave.setCategory(category);
 
         ProductEntity saved = productRepository.save(entityToSave);
         return Product.fromEntity(saved).toResponseDto();
@@ -110,7 +105,6 @@ public class ProductServiceImpl implements ProductService {
         product.partialUpdate(dto);
         ProductEntity entityToSave = product.toEntity();
 
-        // Validar y cambiar categoría solo si viene en el DTO
         if (dto.getCategoryId() != null) {
             CategoryEntity category = categoryRepository.findById(dto.getCategoryId())
                     .orElseThrow(() -> new NotFoundException("Category not found"));
@@ -128,12 +122,9 @@ public class ProductServiceImpl implements ProductService {
     public void delete(Long id) {
         ProductEntity entity = productRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
-
         entity.setDeleted(true);
         productRepository.save(entity);
     }
-
-    // --- NUEVOS MÉTODOS REQUERIDOS POR LA PRÁCTICA 08 ---
 
     @Override
     public List<ProductResponseDto> findByUserId(Long userId) {
@@ -157,5 +148,82 @@ public class ProductServiceImpl implements ProductService {
                 .map(Product::fromEntity)
                 .map(Product::toResponseDto)
                 .toList();
+    }
+
+    // --- IMPLEMENTACIÓN DE LOS MÉTODOS FILTRADOS DE LA PRÁCTICA 09 ---
+
+    @Override
+    public List<ProductResponseDto> findByUserIdWithFilters(Long userId, ProductFilterByUserDto filters) {
+        // 1. Validar que el usuario del contexto exista y no esté eliminado
+        if (!userRepository.existsByIdAndDeletedFalse(userId)) {
+            throw new NotFoundException("User not found");
+        }
+
+        // 2. Validar reglas de negocio de los filtros (rango de precios)
+        validateFilters(filters);
+
+        // 3. Normalizar el nombre (si viene vacío, se pasa como null para que SQL lo ignore)
+        String name = normalizeName(filters.getName());
+
+        // 4. Consultar y mapear resultados usando tu modelo Product
+        return productRepository.findByOwnerIdWithFilters(
+                        userId,
+                        name,
+                        filters.getMinPrice(),
+                        filters.getMaxPrice(),
+                        filters.getCategoryId()
+                ).stream()
+                .map(Product::fromEntity)
+                .map(Product::toResponseDto)
+                .toList();
+    }
+
+    @Override
+    public List<ProductResponseDto> findByCategoryIdWithFilters(Long categoryId, ProductFilterByUserDto filters) {
+        // 1. Validar que la categoría del contexto exista y no esté eliminada
+        if (!categoryRepository.existsByIdAndDeletedFalse(categoryId)) {
+            throw new NotFoundException("Category not found");
+        }
+
+        // 2. Validar rango de precios
+        validateFilters(filters);
+
+        // 3. Normalizar nombre
+        String name = normalizeName(filters.getName());
+
+        // 4. Consultar y mapear usando tu modelo Product
+        return productRepository.findByCategoryIdWithFilters(
+                        categoryId,
+                        name,
+                        filters.getMinPrice(),
+                        filters.getMaxPrice(),
+                        filters.getUserId()
+                ).stream()
+                .map(Product::fromEntity)
+                .map(Product::toResponseDto)
+                .toList();
+    }
+
+    // --- MÉTODOS AUXILIARES (HELPERS) ---
+
+    private void validateFilters(ProductFilterByUserDto filters) {
+        if (filters == null) return;
+
+        // Validar coherencia de rango de precios
+        if (!filters.hasValidPriceRange()) {
+            throw new BadRequestException("El precio máximo debe ser mayor o igual al precio mínimo");
+        }
+
+        // Si se incluye un filtro de categoría cruzado, validar que exista
+        if (filters.getCategoryId() != null && !categoryRepository.existsByIdAndDeletedFalse(filters.getCategoryId())) {
+            throw new NotFoundException("Category not found");
+        }
+    }
+
+    private String normalizeName(String name) {
+        if (name == null || name.isBlank()) {
+            return null;
+        }
+        return name.trim();
     }
 }
