@@ -9,6 +9,9 @@ import ec.edu.ups.icc.fundamentos01.users.dtos.UserResponseDto;
 import ec.edu.ups.icc.fundamentos01.categories.entities.CategoryEntity;
 import ec.edu.ups.icc.fundamentos01.categories.dtos.CategoryResponseDto;
 
+import java.util.List;
+import java.util.Set;
+
 public class Product {
 
     private Long id;
@@ -19,7 +22,9 @@ public class Product {
 
     // Relaciones agregadas
     private UserEntity owner;
-    private CategoryEntity category;
+
+    // Cambiado de un objeto individual a una colección (Set)
+    private Set<CategoryEntity> categories;
 
     public Product() {}
 
@@ -43,8 +48,7 @@ public class Product {
 
         // Extraer relaciones de la entidad
         p.owner = entity.getOwner();
-        p.category = entity.getCategory();
-
+        p.categories = entity.getCategories(); // Extrae la colección
         return p;
     }
 
@@ -58,7 +62,7 @@ public class Product {
 
         // Pasar las relaciones a la entidad
         entity.setOwner(this.owner);
-        entity.setCategory(this.category);
+        entity.setCategories(this.categories); // Pasa la colección
 
         return entity;
     }
@@ -80,12 +84,16 @@ public class Product {
             dto.setOwner(ownerDto);
         }
 
-        if (this.category != null) {
-            CategoryResponseDto categoryDto = new CategoryResponseDto();
-            categoryDto.setId(this.category.getId());
-            categoryDto.setName(this.category.getName());
-            categoryDto.setDescription(this.category.getDescription());
-            dto.setCategory(categoryDto);
+        // Nuevo mapeo: Convierte el Set de CategoryEntity en una List de CategoryResponseDto
+        if (this.categories != null) {
+            List<CategoryResponseDto> categoryDtos = this.categories.stream().map(cat -> {
+                CategoryResponseDto catDto = new CategoryResponseDto();
+                catDto.setId(cat.getId());
+                catDto.setName(cat.getName());
+                catDto.setDescription(cat.getDescription());
+                return catDto;
+            }).toList();
+            dto.setCategories(categoryDtos);
         }
 
         return dto;
@@ -116,9 +124,9 @@ public class Product {
     public boolean isDeleted() { return deleted; }
     public void setDeleted(boolean deleted) { this.deleted = deleted; }
 
-    // Getters y Setters de las relaciones
+    // Getters y Setters de las relaciones actualizados
     public UserEntity getOwner() { return owner; }
     public void setOwner(UserEntity owner) { this.owner = owner; }
-    public CategoryEntity getCategory() { return category; }
-    public void setCategory(CategoryEntity category) { this.category = category; }
+    public Set<CategoryEntity> getCategories() { return categories; }
+    public void setCategories(Set<CategoryEntity> categories) { this.categories = categories; }
 }

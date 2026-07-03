@@ -1,6 +1,7 @@
 package ec.edu.ups.icc.fundamentos01.products.dtos;
 
 import jakarta.validation.constraints.*;
+import java.util.Set;
 
 public class PartialUpdateProductDto {
 
@@ -13,8 +14,8 @@ public class PartialUpdateProductDto {
     @Min(value = 0, message = "El stock no puede ser negativo")
     private Integer stock;
 
-    // Nuevo campo agregado
-    private Long categoryId;
+    // Cambiado a Set de IDs [cite: 231]
+    private Set<Long> categoryIds;
 
     public PartialUpdateProductDto() {}
 
@@ -24,8 +25,6 @@ public class PartialUpdateProductDto {
     public void setPrice(Double price) { this.price = price; }
     public Integer getStock() { return stock; }
     public void setStock(Integer stock) { this.stock = stock; }
-
-    // Getters y setters del nuevo campo
-    public Long getCategoryId() { return categoryId; }
-    public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }
+    public Set<Long> getCategoryIds() { return categoryIds; }
+    public void setCategoryIds(Set<Long> categoryIds) { this.categoryIds = categoryIds; }
 }

@@ -7,18 +7,22 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.util.HashSet;
+import java.util.Set;
 
 /*
  * Entidad JPA del recurso products.
  *
  * Representa la tabla products en PostgreSQL.
- * Cada producto pertenece a un usuario y a una categoría.
+ * Evolucionado a relación Muchos a Muchos con categorías.
  */
 @Entity
 @Table(name = "products")
-public class ProductEntity extends BaseEntity { // Hereda id, fechas y deleted de BaseEntity
+public class ProductEntity extends BaseEntity {
 
     @Column(nullable = false, length = 150)
     private String name;
@@ -32,32 +36,35 @@ public class ProductEntity extends BaseEntity { // Hereda id, fechas y deleted d
     /*
      * Relación muchos a uno con UserEntity.
      * Muchos productos pueden pertenecer a un usuario.
-     * La columna user_id se crea en la tabla products como Foreign Key.
      */
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity owner;
 
     /*
-     * Relación muchos a uno con CategoryEntity.
-     * Muchos productos pueden pertenecer a una categoría.
-     * La columna category_id se crea en la tabla products como Foreign Key.
+     * Relación muchos a muchos entre productos y categorías[cite: 219].
+     * Un producto puede pertenecer a varias categorías[cite: 220].
+     * Una categoría puede tener varios productos[cite: 220].
      */
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id", nullable = false)
-    private CategoryEntity category;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "product_categories",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private Set<CategoryEntity> categories = new HashSet<>();
 
     // Constructor vacío obligatorio para JPA
     public ProductEntity() {
     }
 
-    // Constructor lleno para facilitar la creación de instancias en el servicio
-    public ProductEntity(String name, Double price, Integer stock, UserEntity owner, CategoryEntity category) {
+    // Constructor lleno adaptado para recibir el Set de categorías requerido
+    public ProductEntity(String name, Double price, Integer stock, UserEntity owner, Set<CategoryEntity> categories) {
         this.name = name;
         this.price = price;
         this.stock = stock;
         this.owner = owner;
-        this.category = category;
+        this.categories = categories;
     }
 
     // Getters y Setters
@@ -93,11 +100,11 @@ public class ProductEntity extends BaseEntity { // Hereda id, fechas y deleted d
         this.owner = owner;
     }
 
-    public CategoryEntity getCategory() {
-        return category;
+    public Set<CategoryEntity> getCategories() {
+        return categories;
     }
 
-    public void setCategory(CategoryEntity category) {
-        this.category = category;
+    public void setCategories(Set<CategoryEntity> categories) {
+        this.categories = categories;
     }
 }

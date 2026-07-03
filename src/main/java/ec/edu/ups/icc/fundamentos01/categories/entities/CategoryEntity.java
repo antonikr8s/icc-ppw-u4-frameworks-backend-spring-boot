@@ -1,26 +1,38 @@
 package ec.edu.ups.icc.fundamentos01.categories.entities;
 
 import ec.edu.ups.icc.fundamentos01.core.entities.BaseEntity;
+import ec.edu.ups.icc.fundamentos01.products.entities.ProductEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import java.util.HashSet;
+import java.util.Set;
 
 /*
  * Entidad JPA del recurso categories.
  *
  * Representa la tabla categories en PostgreSQL.
- * Una categoría puede estar asociada a muchos productos,
- * pero en esta práctica la relación se define desde ProductEntity. [cite: 390, 391]
+ * Una categoría puede estar asociada a muchos productos.
  */
 @Entity
 @Table(name = "categories")
-public class CategoryEntity extends BaseEntity { // Hereda id, createdAt, updatedAt y deleted de BaseEntity
+public class CategoryEntity extends BaseEntity {
 
     @Column(nullable = false, unique = true, length = 120)
-    private String name; // Nombre único de la categoría [cite: 397]
+    private String name;
 
     @Column(length = 500)
-    private String description; // Descripción opcional [cite: 397]
+    private String description;
+
+    /*
+     * Relación inversa con productos.
+     * mappedBy indica que la relación principal se define
+     * en el atributo categories de ProductEntity
+     */
+    @ManyToMany(mappedBy = "categories", fetch = FetchType.LAZY)
+    private Set<ProductEntity> products = new HashSet<>();
 
     // Constructor vacío obligatorio para JPA
     public CategoryEntity() {
@@ -47,5 +59,13 @@ public class CategoryEntity extends BaseEntity { // Hereda id, createdAt, update
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Set<ProductEntity> getProducts() {
+        return products;
+    }
+
+    public void setProducts(Set<ProductEntity> products) {
+        this.products = products;
     }
 }

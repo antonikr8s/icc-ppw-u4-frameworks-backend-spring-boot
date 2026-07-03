@@ -11,62 +11,54 @@ import java.util.Optional;
 @Repository
 public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
 
-    // --- Métodos de la Práctica 08 ---
     Optional<ProductEntity> findByNameIgnoreCaseAndDeletedFalse(String name);
-
     List<ProductEntity> findByDeletedFalse();
-
     Optional<ProductEntity> findByIdAndDeletedFalse(Long id);
-
     List<ProductEntity> findByOwner_IdAndDeletedFalse(Long ownerId);
 
-    List<ProductEntity> findByCategory_IdAndDeletedFalse(Long categoryId);
-
-    // --- MÉTODOS DE LA PRÁCTICA 09 CORREGIDOS PARA EVITAR EL ERROR LOWER(BYTEA) ---
+    // --- MÉTODOS DE LA PRÁCTICA 09: EVOLUCIÓN A MANY-TO-MANY ---
 
     /*
-     * Busca productos activos de un usuario aplicando filtros opcionales. [cite: 106, 127]
-     * Se aplica CAST(:name AS string) para asegurar que PostgreSQL no interprete el parámetro como bytea.
+     * Busca productos de un usuario.
+     * Se elimina el filtro categoryId por el cambio a colección Set<CategoryEntity>.
      */
     @Query("""
-            SELECT p
+            SELECT DISTINCT p
             FROM ProductEntity p
+            LEFT JOIN FETCH p.categories c
             JOIN FETCH p.owner u
-            JOIN FETCH p.category c
             WHERE p.deleted = false
               AND u.id = :userId
               AND u.deleted = false
               AND (:name IS NULL OR LOWER(CAST(p.name AS string)) LIKE LOWER(CONCAT('%', CAST(:name AS string), '%')))
               AND (:minPrice IS NULL OR p.price >= :minPrice)
               AND (:maxPrice IS NULL OR p.price <= :maxPrice)
-              AND (:categoryId IS NULL OR c.id = :categoryId)
-              AND (:categoryId IS NULL OR c.deleted = false)
            """)
     List<ProductEntity> findByOwnerIdWithFilters(
             @Param("userId") Long userId,
             @Param("name") String name,
             @Param("minPrice") Double minPrice,
-            @Param("maxPrice") Double maxPrice,
-            @Param("categoryId") Long categoryId
+            @Param("maxPrice") Double maxPrice
     );
 
     /*
-     * Busca productos activos de una categoría aplicando filtros opcionales. [cite: 111, 131]
-     * Se aplica CAST(:name AS string) para asegurar la compatibilidad de tipos en PostgreSQL.
+     * Busca productos filtrando desde el contexto de una categoría.
+     * Usa DISTINCT para evitar duplicados en tablas ManyToMany.
      */
     @Query("""
-            SELECT p
+            SELECT DISTINCT p
             FROM ProductEntity p
+            JOIN p.categories catFilter
+            LEFT JOIN FETCH p.categories c
             JOIN FETCH p.owner u
-            JOIN FETCH p.category c
             WHERE p.deleted = false
-              AND c.id = :categoryId
-              AND c.deleted = false
+              AND catFilter.id = :categoryId
+              AND catFilter.deleted = false
+              AND u.deleted = false
               AND (:name IS NULL OR LOWER(CAST(p.name AS string)) LIKE LOWER(CONCAT('%', CAST(:name AS string), '%')))
               AND (:minPrice IS NULL OR p.price >= :minPrice)
               AND (:maxPrice IS NULL OR p.price <= :maxPrice)
               AND (:userId IS NULL OR u.id = :userId)
-              AND (:userId IS NULL OR u.deleted = false)
            """)
     List<ProductEntity> findByCategoryIdWithFilters(
             @Param("categoryId") Long categoryId,

@@ -43,16 +43,4 @@ public class ProductsController {
         service.delete(id);
         return Map.of("message", "Deleted successfully");
     }
-
-    // --- NUEVOS ENDPOINTS DE LA PRÁCTICA 08 ---
-
-    @GetMapping("/user/{userId}")
-    public List<ProductResponseDto> findByUserId(@PathVariable Long userId) {
-        return service.findByUserId(userId);
-    }
-
-    @GetMapping("/category/{categoryId}")
-    public List<ProductResponseDto> findByCategoryId(@PathVariable Long categoryId) {
-        return service.findByCategoryId(categoryId);
-    }
 }
