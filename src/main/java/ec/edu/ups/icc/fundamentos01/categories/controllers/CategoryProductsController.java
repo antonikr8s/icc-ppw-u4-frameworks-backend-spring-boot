@@ -1,19 +1,22 @@
 package ec.edu.ups.icc.fundamentos01.categories.controllers;
 
+import ec.edu.ups.icc.fundamentos01.core.dtos.PaginationDto;
 import ec.edu.ups.icc.fundamentos01.products.dtos.ProductFilterByCategoryDto;
 import ec.edu.ups.icc.fundamentos01.products.dtos.ProductResponseDto;
 import ec.edu.ups.icc.fundamentos01.products.services.ProductService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /*
  * Controlador REST encargado de exponer consultas relacionadas
- * entre categorías y productos[cite: 279, 280].
+ * entre categorías y productos.
  *
  * La ruta pertenece al contexto semántico de categorías:
- * /categories/{id}/products [cite: 280]
+ * /categories/{id}/products
  */
 @RestController
 @RequestMapping("/categories")
@@ -26,12 +29,12 @@ public class CategoryProductsController {
     }
 
     /*
-     * Endpoint para consultar productos de una categoría[cite: 283].
+     * Endpoint para consultar productos de una categoría (sin paginar).
      *
      * GET /api/categories/{id}/products
      * GET /api/categories/{id}/products?name=laptop
      * GET /api/categories/{id}/products?minPrice=500&maxPrice=1500
-     * GET /api/categories/{id}/products?userId=1 [cite: 284]
+     * GET /api/categories/{id}/products?userId=1
      */
     @GetMapping("/{id}/products")
     public List<ProductResponseDto> findProductsByCategory(
@@ -39,5 +42,36 @@ public class CategoryProductsController {
             @Valid @ModelAttribute ProductFilterByCategoryDto filters
     ) {
         return productService.findByCategoryIdWithFilters(id, filters);
+    }
+
+    /*
+     * Endpoint paginado con Page para productos de una categoría.
+     *
+     * GET /api/categories/{id}/products/page
+     * GET /api/categories/{id}/products/page?page=0&size=5
+     * GET /api/categories/{id}/products/page?name=laptop&minPrice=500&page=0&size=5
+     */
+    @GetMapping("/{id}/products/page")
+    public Page<ProductResponseDto> findProductsByCategoryPage(
+            @PathVariable Long id,
+            @Valid @ModelAttribute ProductFilterByCategoryDto filters,
+            @Valid @ModelAttribute PaginationDto pagination
+    ) {
+        return productService.findByCategoryIdWithFiltersPage(id, filters, pagination);
+    }
+
+    /*
+     * Endpoint paginado con Slice para productos de una categoría.
+     *
+     * GET /api/categories/{id}/products/slice
+     * GET /api/categories/{id}/products/slice?page=0&size=5
+     */
+    @GetMapping("/{id}/products/slice")
+    public Slice<ProductResponseDto> findProductsByCategorySlice(
+            @PathVariable Long id,
+            @Valid @ModelAttribute ProductFilterByCategoryDto filters,
+            @Valid @ModelAttribute PaginationDto pagination
+    ) {
+        return productService.findByCategoryIdWithFiltersSlice(id, filters, pagination);
     }
 }

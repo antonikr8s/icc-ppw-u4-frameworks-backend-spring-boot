@@ -2,6 +2,7 @@ package ec.edu.ups.icc.fundamentos01.products.services;
 
 import ec.edu.ups.icc.fundamentos01.categories.entities.CategoryEntity;
 import ec.edu.ups.icc.fundamentos01.categories.repositories.CategoryRepository;
+import ec.edu.ups.icc.fundamentos01.core.dtos.PaginationDto;
 import ec.edu.ups.icc.fundamentos01.core.exceptions.domain.ConflictException;
 import ec.edu.ups.icc.fundamentos01.core.exceptions.domain.NotFoundException;
 import ec.edu.ups.icc.fundamentos01.core.exceptions.domain.BadRequestException;
@@ -11,7 +12,13 @@ import ec.edu.ups.icc.fundamentos01.products.models.Product;
 import ec.edu.ups.icc.fundamentos01.products.repositories.ProductRepository;
 import ec.edu.ups.icc.fundamentos01.users.entities.UserEntity;
 import ec.edu.ups.icc.fundamentos01.users.repositories.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
@@ -47,9 +54,6 @@ public class ProductServiceImpl implements ProductService {
         return Product.fromEntity(entity).toResponseDto();
     }
 
-    /*
-     * Crea un producto asociado a un usuario y a varias categorías[cite: 273].
-     */
     @Override
     public ProductResponseDto create(CreateProductDto dto) {
         UserEntity owner = userRepository.findById(dto.getUserId())
@@ -58,7 +62,6 @@ public class ProductServiceImpl implements ProductService {
             throw new NotFoundException("User not found");
         }
 
-        // Valida que las categorías existan y no estén eliminadas [cite: 274, 275]
         Set<CategoryEntity> categories = validateAndGetCategories(dto.getCategoryIds());
 
         productRepository.findByNameIgnoreCaseAndDeletedFalse(dto.getName()).ifPresent(e -> {
@@ -79,7 +82,6 @@ public class ProductServiceImpl implements ProductService {
         ProductEntity entity = productRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
 
-        // Reemplaza todas las categorías asociadas al producto [cite: 276]
         Set<CategoryEntity> categories = validateAndGetCategories(dto.getCategoryIds());
 
         Product product = Product.fromEntity(entity);
@@ -102,7 +104,6 @@ public class ProductServiceImpl implements ProductService {
         ProductEntity entityToSave = product.toEntity();
 
         if (dto.getCategoryIds() != null && !dto.getCategoryIds().isEmpty()) {
-            // Reemplaza todas las categorías si categoryIds viene con valor [cite: 277]
             Set<CategoryEntity> categories = validateAndGetCategories(dto.getCategoryIds());
             entityToSave.setCategories(categories);
         }
@@ -126,8 +127,6 @@ public class ProductServiceImpl implements ProductService {
                 .map(Product::fromEntity).map(Product::toResponseDto).toList();
     }
 
-    // --- IMPLEMENTACIÓN DE LOS MÉTODOS FILTRADOS (FASE B y C) ---
-
     @Override
     public List<ProductResponseDto> findByUserIdWithFilters(Long userId, ProductFilterByUserDto filters) {
         if (!userRepository.existsByIdAndDeletedFalse(userId)) {
@@ -137,7 +136,6 @@ public class ProductServiceImpl implements ProductService {
         validateUserFilters(filters);
         String name = normalizeName(filters.getName());
 
-        // Se elimina el filtro categoryId para mantener la semántica de la ruta [cite: 288]
         return productRepository.findByOwnerIdWithFilters(
                         userId,
                         name,
@@ -149,10 +147,6 @@ public class ProductServiceImpl implements ProductService {
                 .toList();
     }
 
-    /*
-     * Retorna productos activos de una categoría aplicando filtros opcionales[cite: 260].
-     * Consulta los productos desde ProductRepository[cite: 261, 262].
-     */
     @Override
     public List<ProductResponseDto> findByCategoryIdWithFilters(Long categoryId, ProductFilterByCategoryDto filters) {
         if (!categoryRepository.existsByIdAndDeletedFalse(categoryId)) {
@@ -174,12 +168,94 @@ public class ProductServiceImpl implements ProductService {
                 .toList();
     }
 
-    // --- MÉTODOS AUXILIARES (HELPERS) ---
+    // --- MÉTODOS DE LA PRÁCTICA 10: PAGINACIÓN GENERAL ---
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductResponseDto> findAllPage(PaginationDto pagination) {
+        Pageable pageable = createPageable(pagination);
+
+        return productRepository.findActivePage(pageable)
+                .map(Product::fromEntity)
+                .map(Product::toResponseDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Slice<ProductResponseDto> findAllSlice(PaginationDto pagination) {
+        Pageable pageable = createPageable(pagination);
+
+        return productRepository.findActiveSlice(pageable)
+                .map(Product::fromEntity)
+                .map(Product::toResponseDto);
+    }
+
+    // --- MÉTODOS DE LA PRÁCTICA 10: PAGINACIÓN POR CATEGORÍA (ACTIVIDAD FINAL) ---
 
     /*
-     * Valida que todas las categorías existan y estén activas[cite: 267, 268].
-     * Retorna el conjunto de entidades CategoryEntity[cite: 269].
+     * Retorna productos activos de una categoría usando Page.
+     * Mantiene los filtros de la práctica anterior y agrega paginación.
      */
+    @Override
+    @Transactional(readOnly = true)
+    public Page<ProductResponseDto> findByCategoryIdWithFiltersPage(
+            Long categoryId,
+            ProductFilterByCategoryDto filters,
+            PaginationDto pagination
+    ) {
+        if (!categoryRepository.existsByIdAndDeletedFalse(categoryId)) {
+            throw new NotFoundException("Category not found");
+        }
+
+        validateCategoryFilters(filters);
+        String name = normalizeName(filters.getName());
+        Pageable pageable = createPageable(pagination);
+
+        return productRepository.findByCategoryIdWithFiltersPage(
+                        categoryId,
+                        name,
+                        filters.getMinPrice(),
+                        filters.getMaxPrice(),
+                        filters.getUserId(),
+                        pageable
+                )
+                .map(Product::fromEntity)
+                .map(Product::toResponseDto);
+    }
+
+    /*
+     * Retorna productos activos de una categoría usando Slice.
+     * No calcula totalElements ni totalPages.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Slice<ProductResponseDto> findByCategoryIdWithFiltersSlice(
+            Long categoryId,
+            ProductFilterByCategoryDto filters,
+            PaginationDto pagination
+    ) {
+        if (!categoryRepository.existsByIdAndDeletedFalse(categoryId)) {
+            throw new NotFoundException("Category not found");
+        }
+
+        validateCategoryFilters(filters);
+        String name = normalizeName(filters.getName());
+        Pageable pageable = createPageable(pagination);
+
+        return productRepository.findByCategoryIdWithFiltersSlice(
+                        categoryId,
+                        name,
+                        filters.getMinPrice(),
+                        filters.getMaxPrice(),
+                        filters.getUserId(),
+                        pageable
+                )
+                .map(Product::fromEntity)
+                .map(Product::toResponseDto);
+    }
+
+    // --- MÉTODOS AUXILIARES (HELPERS) ---
+
     private Set<CategoryEntity> validateAndGetCategories(Set<Long> categoryIds) {
         if (categoryIds == null || categoryIds.isEmpty()) {
             throw new BadRequestException("Debe seleccionar al menos una categoría");
@@ -196,9 +272,6 @@ public class ProductServiceImpl implements ProductService {
         return categories;
     }
 
-    /*
-     * Valida reglas de negocio relacionadas con filtros[cite: 184].
-     */
     private void validateUserFilters(ProductFilterByUserDto filters) {
         if (filters == null) return;
         if (!filters.hasValidPriceRange()) {
@@ -206,9 +279,6 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    /*
-     * Valida reglas de negocio relacionadas con filtros usados desde el contexto de categoría[cite: 266].
-     */
     private void validateCategoryFilters(ProductFilterByCategoryDto filters) {
         if (filters == null) return;
         if (!filters.hasValidPriceRange()) {
@@ -222,5 +292,54 @@ public class ProductServiceImpl implements ProductService {
     private String normalizeName(String name) {
         if (name == null || name.isBlank()) return null;
         return name.trim();
+    }
+
+    private Pageable createPageable(PaginationDto pagination) {
+        String sortBy = normalizeSortBy(pagination.getSortBy());
+        Sort.Direction direction = normalizeDirection(pagination.getDirection());
+        Sort sort = Sort.by(direction, sortBy);
+
+        return PageRequest.of(
+                pagination.getPage(),
+                pagination.getSize(),
+                sort
+        );
+    }
+
+    private String normalizeSortBy(String sortBy) {
+        if (sortBy == null || sortBy.isBlank()) {
+            return "id";
+        }
+
+        Set<String> allowedFields = Set.of(
+                "id",
+                "name",
+                "price",
+                "stock",
+                "createdAt",
+                "updatedAt"
+        );
+
+        if (!allowedFields.contains(sortBy)) {
+            throw new BadRequestException("Campo de ordenamiento no permitido: " + sortBy);
+        }
+
+        return sortBy;
+    }
+
+    private Sort.Direction normalizeDirection(String direction) {
+        if (direction == null || direction.isBlank()) {
+            return Sort.Direction.ASC;
+        }
+
+        if (direction.equalsIgnoreCase("asc")) {
+            return Sort.Direction.ASC;
+        }
+
+        if (direction.equalsIgnoreCase("desc")) {
+            return Sort.Direction.DESC;
+        }
+
+        throw new BadRequestException("Dirección de ordenamiento no válida: " + direction);
     }
 }

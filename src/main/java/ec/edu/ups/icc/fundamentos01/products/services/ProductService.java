@@ -1,6 +1,10 @@
 package ec.edu.ups.icc.fundamentos01.products.services;
 
+import ec.edu.ups.icc.fundamentos01.core.dtos.PaginationDto;
 import ec.edu.ups.icc.fundamentos01.products.dtos.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
+
 import java.util.List;
 
 public interface ProductService {
@@ -14,7 +18,31 @@ public interface ProductService {
     // --- Métodos de la Práctica 08 ---
     List<ProductResponseDto> findByUserId(Long userId);
 
-    // --- MÉTODOS DE LA PRÁCTICA 09 (Filtros dinámicos) ---
+    // --- Métodos de la Práctica 09 (Filtros dinámicos) ---
     List<ProductResponseDto> findByUserIdWithFilters(Long userId, ProductFilterByUserDto filters);
     List<ProductResponseDto> findByCategoryIdWithFilters(Long categoryId, ProductFilterByCategoryDto filters);
+
+    // --- Métodos de la Práctica 10 (Paginación general) ---
+    Page<ProductResponseDto> findAllPage(PaginationDto pagination);
+    Slice<ProductResponseDto> findAllSlice(PaginationDto pagination);
+
+    // --- Métodos de la Práctica 10 (Actividad final: paginación por categoría) ---
+
+    /*
+     * Retorna productos de una categoría con filtros y Page.
+     */
+    Page<ProductResponseDto> findByCategoryIdWithFiltersPage(
+            Long categoryId,
+            ProductFilterByCategoryDto filters,
+            PaginationDto pagination
+    );
+
+    /*
+     * Retorna productos de una categoría con filtros y Slice.
+     */
+    Slice<ProductResponseDto> findByCategoryIdWithFiltersSlice(
+            Long categoryId,
+            ProductFilterByCategoryDto filters,
+            PaginationDto pagination
+    );
 }

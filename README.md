@@ -6,10 +6,11 @@
 
 <div align="center">
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="95">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" width="95">
 </div>
 
 
-# Práctica 7 (Spring Boot): Manejo Global de Errores y Excepciones
+# Práctica 10 (Spring Boot): Paginación de Productos con Page, Slice y Pageable
 
 ## Autores
 
@@ -73,6 +74,33 @@
 ### Actualización en DBeaver
 ![Update-2](assets/19-Update-2.png)
 
+
+## Práctica 10 (Spring Boot): Paginación de Productos con Page, Slice y Pageable
+
+### Ejecutar `seed_data.sql` (cargar los datos)
+![Power](assets/22-PowerShell.png)
+
+### Captura de respuesta con Page
+**Descripción:** `GET` /api/products/page?page=0&size=5
+![Page](assets/23-Respuesta-Page.png)
+
+### Captura de respuesta con Slice
+**Descripción:** `GET` /api/products/slice?page=0&size=5
+![Slice](assets/24-Respuesta-Slice.png)
+
+### Captura de error por paginación inválida
+**Descripción:** `GET` /api/products/page?page=-1&size=0
+![Paginacion-Invalida](assets/25-Paginacion-invalida.png)
+
+### Captura de endpoint de categoría paginado
+**Descripción:** `GET` /api/categories/2/products/page?page=110&size=5
+![Categoria-Paginado](assets/26-Categoria-paginado.png)
+
+### Captura de endpoint de categoría paginado
+**Descripción:** `GET` /api/categories/2/products/slice?page=10&size=5
+![Update](assets/26-Categoria-paginado.png)
+
+
 ---
 
 ## Explicación del Flujo de Datos Completo (API REST ↔ PostgreSQL)
@@ -92,3 +120,18 @@ La entidad hereda de la clase BaseEntity, que proporciona automáticamente campo
 ### 4. Respuesta (Vuelta)
 
 Una vez almacenados los datos, PostgreSQL genera el identificador del registro y devuelve la información guardada. Posteriormente, la entidad se transforma en un DTO de respuesta y se envía al cliente con un estado HTTP exitoso.
+
+
+### 5. ¿Cuál es la diferencia entre Page y Slice?
+
+`Page` devuelve una respuesta paginada completa, incluyendo los datos, el número total de registros y el total de páginas disponibles. Para obtener esta información, Spring Data JPA realiza una consulta para recuperar los datos y otra para contar el número total de registros.
+
+Por otro lado, `Slice` solo indica si existe una página siguiente o anterior, sin calcular el total de registros. Esto lo hace más eficiente cuando únicamente se necesita navegar entre páginas.
+
+En general, Page es recomendable cuando se requiere mostrar el número total de resultados o páginas, mientras que Slice es una mejor opción para funciones como el desplazamiento infinito (infinite scroll), donde la prioridad es el rendimiento.
+
+### 6. ¿Por qué la paginación debe aplicarse en el repositorio y no después de traer todos los datos en memoria?
+
+La paginación debe realizarse en el repositorio para que la base de datos devuelva únicamente los registros solicitados. Si primero se cargan todos los datos en memoria y luego se paginan, el sistema consume más memoria, utiliza más ancho de banda y aumenta el tiempo de respuesta, especialmente cuando existen miles de registros.
+
+Al utilizar Pageable, Spring Data JPA traduce la solicitud a instrucciones SQL como LIMIT y OFFSET, permitiendo que la base de datos envíe solo los datos necesarios. Esto mejora el rendimiento y hace que la aplicación sea más eficiente y escalable.
