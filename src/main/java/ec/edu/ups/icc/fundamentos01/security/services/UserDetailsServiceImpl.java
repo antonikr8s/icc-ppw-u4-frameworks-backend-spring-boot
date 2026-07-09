@@ -9,9 +9,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /*
- * Conector entre Spring Security y la base de datos.
- * Spring Security lo llama automáticamente durante login y en cada
- * request autenticado (a través del filtro JWT).
+ * Carga usuarios desde la BD y los adapta al formato de Spring Security.
+ * Este servicio es usado internamente por el AuthenticationManager al hacer login.
  */
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -25,7 +24,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        UserEntity user = userRepository.findByEmail(email)
+        // findByEmailAndDeletedFalse: un usuario eliminado no puede autenticarse
+        UserEntity user = userRepository.findByEmailAndDeletedFalse(email)
                 .orElseThrow(() -> new UsernameNotFoundException(
                         "Usuario no encontrado con email: " + email));
 

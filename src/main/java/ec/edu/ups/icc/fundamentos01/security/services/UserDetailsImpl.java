@@ -9,15 +9,15 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 /*
- * Adaptador entre UserEntity (JPA) y UserDetails (Spring Security).
- * Es el "puente" que Spring Security entiende para autenticar y autorizar.
+ * Adaptador entre UserEntity (nuestra BD) y UserDetails (Spring Security).
+ * Campos final: el usuario no cambia durante el ciclo de vida de la request.
  */
 public class UserDetailsImpl implements UserDetails {
 
     private final Long id;
     private final String name;
     private final String email;
-    private final String password; // aquí guardamos el HASH de la contraseña
+    private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
 
     public UserDetailsImpl(Long id, String name, String email, String password,
@@ -29,8 +29,9 @@ public class UserDetailsImpl implements UserDetails {
         this.authorities = authorities;
     }
 
-    /**
-     * Factory method: construye un UserDetailsImpl a partir de un UserEntity.
+    /*
+     * Factory method: convierte UserEntity → UserDetailsImpl.
+     * Los roles (Set<RoleEntity>, cargados EAGER) se convierten en authorities.
      */
     public static UserDetailsImpl build(UserEntity user) {
         Collection<GrantedAuthority> authorities = user.getRoles().stream()
@@ -41,18 +42,15 @@ public class UserDetailsImpl implements UserDetails {
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
-                user.getPasswordHash(), // <- ajustado a tu entidad (passwordHash, no password)
+                user.getPasswordHash(),
                 authorities
         );
     }
 
-    // ============== GETTERS ADICIONALES (para ownership, JWT claims, etc.) ==============
-
+    // Getters adicionales (no forman parte del contrato UserDetails)
     public Long getId() { return id; }
     public String getName() { return name; }
     public String getEmail() { return email; }
-
-    // ============== MÉTODOS DEL CONTRATO UserDetails ==============
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -66,7 +64,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public String getUsername() {
-        return email; // usamos el email como "username"
+        return email; // Usamos email como username
     }
 
     @Override

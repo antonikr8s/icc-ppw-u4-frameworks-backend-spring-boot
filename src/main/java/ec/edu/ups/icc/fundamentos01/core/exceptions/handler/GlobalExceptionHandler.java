@@ -5,6 +5,8 @@ import ec.edu.ups.icc.fundamentos01.core.exceptions.response.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -48,11 +50,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(response);
     }
 
-    // --- NUEVO MANEJADOR DE LA PRÁCTICA 09 ---
-    /*
-     * Maneja errores de validación en los query params que son recibidos
-     * mediante la anotación @ModelAttribute en los filtros[cite: 98].
-     */
     @ExceptionHandler(BindException.class)
     public ResponseEntity<ErrorResponse> handleBindException(
             BindException ex,
@@ -70,6 +67,29 @@ public class GlobalExceptionHandler {
                 errors
         );
         return ResponseEntity.badRequest().body(response);
+    }
+
+    // --- NUEVO MANEJADOR DE LA PRÁCTICA 11 ---
+    /*
+     * Maneja errores de autenticación lanzados por Spring Security
+     * (por ejemplo, BadCredentialsException cuando el password no coincide).
+     *
+     * Se captura AuthenticationException (clase padre) para cubrir también
+     * otras variantes (DisabledException, LockedException, etc.), pero se
+     * usa un mensaje genérico para no revelar si el error fue el email
+     * o la contraseña (buena práctica de seguridad: no dar pistas).
+     */
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ErrorResponse> handleAuthenticationException(
+            AuthenticationException ex,
+            HttpServletRequest request
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.UNAUTHORIZED,
+                "Credenciales inválidas",
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
     @ExceptionHandler(Exception.class)

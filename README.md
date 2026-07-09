@@ -2,7 +2,7 @@
 
 ![Logo UPS](assets/00-ups-icc.png)
 
-# Frameworks Backend: Spring Boot – Control Global de Errores y Excepciones
+# Spring Boot – Autenticación y Autorización con JWT: Seguridad y Control de Acceso
 
 <div align="center">
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="95">
@@ -10,7 +10,7 @@
 </div>
 
 
-# Práctica 10 (Spring Boot): Paginación de Productos con Page, Slice y Pageable
+## Práctica 11 (Spring Boot): Autenticación JWT, Autorización por Roles y Protección de Endpoints
 
 ## Autores
 
@@ -100,6 +100,36 @@
 **Descripción:** `GET` /api/categories/2/products/slice?page=10&size=5
 ![Update](assets/26-Categoria-paginado.png)
 
+
+## Práctica 11 (Spring Boot): Autenticación JWT, Autorización por Roles y Protección de Endpoints
+
+### 1. Registro de usuario nuevo
+**Descripción:** Debe responder `201 Created` con un `token`, el `userId`, `name`, `email` y `roles`: `["ROLE_USER"]`.
+![](assets/27-Registro-New-User.png)
+
+### 2. Verifica en DBeaver que se guardó bien
+**Descripción:** Debe mostrar el usuario con rol `ROLE_USER`.
+![](assets/28-Verificacion-DBeaver.png)
+
+### 3. Login con ese usuario
+**Descripción:** Debe responder `200 OK` con un nuevo token.
+![](assets/29-Login-User-Creado.png)
+
+### 4. Login con contraseña incorrecta (caso de error)
+**Descripción:** Mismo endpoint, pero con `"password": "incorrecta"`. Debe responder `401` (no `500`).
+![](assets/30-Contraseña-incorrecta.png)
+
+### 5. Registro con email duplicado (caso de error)
+**Descripción:** Debe responder `409 Conflict` ("El email ya está registrado").
+![](assets/31-Correo-duplicado.png)
+
+### 6. Endpoint protegido SIN token
+**Descripción:** Sin ningún header `Authorization`. Debe responder `401 Unauthorized` con el JSON de `ErrorResponse` que armamos en el `JwtAuthenticationEntryPoint` (con `timestamp`, `status`, `error`, `message`, `path`).
+![](assets/32-Endpoint-SIN-token.png)
+
+### 7. Endpoint protegido CON token
+**Descripción:** Ahora debe responder `200 OK` con la lista normal de productos.
+![](assets/33-Endpoint-CON-token.png)
 
 ---
 

@@ -13,4 +13,12 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     // Nuevo método necesario para validar relaciones en productos
     boolean existsByIdAndDeletedFalse(Long id);
+
+    // ============== NUEVOS MÉTODOS PARA SEGURIDAD (Práctica 11) ==============
+
+    // Usado en login: un usuario eliminado lógicamente no puede autenticarse
+    Optional<UserEntity> findByEmailAndDeletedFalse(String email);
+
+    // Usado en registro: evitar emails duplicados
+    boolean existsByEmail(String email);
 }
