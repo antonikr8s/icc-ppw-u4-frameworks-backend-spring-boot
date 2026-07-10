@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -32,7 +33,7 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
               AND (:name IS NULL OR LOWER(CAST(p.name AS string)) LIKE LOWER(CONCAT('%', CAST(:name AS string), '%')))
               AND (:minPrice IS NULL OR p.price >= :minPrice)
               AND (:maxPrice IS NULL OR p.price <= :maxPrice)
-           """)
+            """)
     List<ProductEntity> findByOwnerIdWithFilters(
             @Param("userId") Long userId,
             @Param("name") String name,
@@ -79,12 +80,14 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
     )
     Page<ProductEntity> findActivePage(Pageable pageable);
 
+    // --- LÍNEAS MODIFICADAS ---
     @Query("""
             SELECT p
             FROM ProductEntity p
             WHERE p.deleted = false
+              AND p.owner.id = :ownerId
             """)
-    Slice<ProductEntity> findActiveSlice(Pageable pageable);
+    Slice<ProductEntity> findActiveSlice(@Param("ownerId") Long ownerId, Pageable pageable);
 
     // --- MÉTODOS DE LA PRÁCTICA 10: PAGINACIÓN POR CATEGORÍA ---
 
@@ -92,7 +95,8 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
      * Nota: no se usa DISTINCT con Page/Slice porque Spring Data JPA no puede
      * calcular COUNT DISTINCT correctamente cuando hay fetch join de colecciones.
      * Por eso aquí NO se hace LEFT JOIN FETCH p.categories (evita duplicados
-     * y problemas con el conteo). El listado de categorías de cada producto
+     * y problemas con el conteo).
+     * El listado de categorías de cada producto
      * se sigue mostrando bien porque ProductMapper/Product usa lazy loading
      * dentro de la misma transacción (@Transactional en el service).
      */

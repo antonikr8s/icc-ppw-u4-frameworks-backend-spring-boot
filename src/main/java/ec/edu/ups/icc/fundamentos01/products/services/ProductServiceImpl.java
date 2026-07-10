@@ -10,6 +10,7 @@ import ec.edu.ups.icc.fundamentos01.products.dtos.*;
 import ec.edu.ups.icc.fundamentos01.products.entities.ProductEntity;
 import ec.edu.ups.icc.fundamentos01.products.models.Product;
 import ec.edu.ups.icc.fundamentos01.products.repositories.ProductRepository;
+import ec.edu.ups.icc.fundamentos01.security.services.UserDetailsImpl;
 import ec.edu.ups.icc.fundamentos01.users.entities.UserEntity;
 import ec.edu.ups.icc.fundamentos01.users.repositories.UserRepository;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,13 +57,11 @@ public class ProductServiceImpl implements ProductService {
         return Product.fromEntity(entity).toResponseDto();
     }
 
+    // ============== Práctica 13: create ahora usa currentUser ==============
     @Override
-    public ProductResponseDto create(CreateProductDto dto) {
-        UserEntity owner = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new NotFoundException("User not found"));
-        if (owner.isDeleted()) {
-            throw new NotFoundException("User not found");
-        }
+    @Transactional
+    public ProductResponseDto create(CreateProductDto dto, UserDetailsImpl currentUser) {
+        UserEntity owner = findCurrentUserEntity(currentUser);
 
         Set<CategoryEntity> categories = validateAndGetCategories(dto.getCategoryIds());
 
@@ -77,10 +78,14 @@ public class ProductServiceImpl implements ProductService {
         return Product.fromEntity(saved).toResponseDto();
     }
 
+    // ============== Práctica 13: update ahora valida ownership ==============
     @Override
-    public ProductResponseDto update(Long id, UpdateProductDto dto) {
+    @Transactional
+    public ProductResponseDto update(Long id, UpdateProductDto dto, UserDetailsImpl currentUser) {
         ProductEntity entity = productRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
+
+        validateOwnership(entity, currentUser);
 
         Set<CategoryEntity> categories = validateAndGetCategories(dto.getCategoryIds());
 
@@ -94,10 +99,14 @@ public class ProductServiceImpl implements ProductService {
         return Product.fromEntity(saved).toResponseDto();
     }
 
+    // ============== Práctica 13: partialUpdate ahora valida ownership ==============
     @Override
-    public ProductResponseDto partialUpdate(Long id, PartialUpdateProductDto dto) {
+    @Transactional
+    public ProductResponseDto partialUpdate(Long id, PartialUpdateProductDto dto, UserDetailsImpl currentUser) {
         ProductEntity entity = productRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
+
+        validateOwnership(entity, currentUser);
 
         Product product = Product.fromEntity(entity);
         product.partialUpdate(dto);
@@ -112,10 +121,15 @@ public class ProductServiceImpl implements ProductService {
         return Product.fromEntity(saved).toResponseDto();
     }
 
+    // ============== Práctica 13: delete ahora valida ownership ==============
     @Override
-    public void delete(Long id) {
+    @Transactional
+    public void delete(Long id, UserDetailsImpl currentUser) {
         ProductEntity entity = productRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
+
+        validateOwnership(entity, currentUser);
+
         entity.setDeleted(true);
         productRepository.save(entity);
     }
@@ -174,28 +188,26 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public Page<ProductResponseDto> findAllPage(PaginationDto pagination) {
         Pageable pageable = createPageable(pagination);
-
         return productRepository.findActivePage(pageable)
                 .map(Product::fromEntity)
                 .map(Product::toResponseDto);
     }
 
+    // --- LÍNEAS MODIFICADAS ---
     @Override
     @Transactional(readOnly = true)
-    public Slice<ProductResponseDto> findAllSlice(PaginationDto pagination) {
+    public Slice<ProductResponseDto> findAllSlice(PaginationDto pagination, UserDetailsImpl currentUser) {
+        if (currentUser == null) {
+            throw new AccessDeniedException("Usuario no autenticado");
+        }
         Pageable pageable = createPageable(pagination);
-
-        return productRepository.findActiveSlice(pageable)
+        return productRepository.findActiveSlice(currentUser.getId(), pageable)
                 .map(Product::fromEntity)
                 .map(Product::toResponseDto);
     }
 
     // --- MÉTODOS DE LA PRÁCTICA 10: PAGINACIÓN POR CATEGORÍA (ACTIVIDAD FINAL) ---
 
-    /*
-     * Retorna productos activos de una categoría usando Page.
-     * Mantiene los filtros de la práctica anterior y agrega paginación.
-     */
     @Override
     @Transactional(readOnly = true)
     public Page<ProductResponseDto> findByCategoryIdWithFiltersPage(
@@ -223,10 +235,6 @@ public class ProductServiceImpl implements ProductService {
                 .map(Product::toResponseDto);
     }
 
-    /*
-     * Retorna productos activos de una categoría usando Slice.
-     * No calcula totalElements ni totalPages.
-     */
     @Override
     @Transactional(readOnly = true)
     public Slice<ProductResponseDto> findByCategoryIdWithFiltersSlice(
@@ -261,9 +269,11 @@ public class ProductServiceImpl implements ProductService {
             throw new BadRequestException("Debe seleccionar al menos una categoría");
         }
         Set<CategoryEntity> categories = new HashSet<>();
+
         for (Long catId : categoryIds) {
             CategoryEntity category = categoryRepository.findById(catId)
                     .orElseThrow(() -> new NotFoundException("Category not found"));
+
             if (category.isDeleted()) {
                 throw new NotFoundException("Category not found");
             }
@@ -341,5 +351,53 @@ public class ProductServiceImpl implements ProductService {
         }
 
         throw new BadRequestException("Dirección de ordenamiento no válida: " + direction);
+    }
+
+    // ============== NUEVO: Práctica 13 — Ownership ==============
+
+    /*
+     * Obtiene el usuario autenticado como entidad JPA.
+     * currentUser viene desde el token JWT. Se re-consulta en base
+     * para asegurar que siga existiendo y no esté eliminado lógicamente.
+     */
+    private UserEntity findCurrentUserEntity(UserDetailsImpl currentUser) {
+        if (currentUser == null) {
+            throw new AccessDeniedException("Usuario no autenticado");
+        }
+        return userRepository.findByIdAndDeletedFalse(currentUser.getId())
+                .orElseThrow(() -> new AccessDeniedException("Usuario no autorizado"));
+    }
+
+    /*
+     * Valida si el usuario autenticado puede modificar o eliminar el producto.
+     * ROLE_ADMIN puede modificar cualquier producto.
+     * ROLE_USER solo puede modificar productos propios.
+     */
+    private void validateOwnership(ProductEntity product, UserDetailsImpl currentUser) {
+        if (currentUser == null) {
+            throw new AccessDeniedException("Usuario no autenticado");
+        }
+
+        if (hasRole(currentUser, "ROLE_ADMIN")) {
+            return;
+        }
+
+        if (product.getOwner() == null || product.getOwner().getId() == null) {
+            throw new AccessDeniedException("El producto no tiene propietario válido");
+        }
+
+        if (!product.getOwner().getId().equals(currentUser.getId())) {
+            throw new AccessDeniedException("No puedes modificar productos ajenos");
+        }
+    }
+
+    /*
+     * Verifica si el usuario tiene un rol específico (ej. ROLE_ADMIN).
+     */
+    private boolean hasRole(UserDetailsImpl user, String role) {
+        return user.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(authority -> authority.equals(role));
     }
 }

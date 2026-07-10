@@ -10,7 +10,7 @@
 </div>
 
 
-## Práctica 11 (Spring Boot): Autenticación JWT, Autorización por Roles y Protección de Endpoints
+## Práctica 12 (Spring Boot): Protección de Endpoints con Roles
 
 ## Autores
 
@@ -105,31 +105,74 @@
 
 ### 1. Registro de usuario nuevo
 **Descripción:** Debe responder `201 Created` con un `token`, el `userId`, `name`, `email` y `roles`: `["ROLE_USER"]`.
-![](assets/27-Registro-New-User.png)
+![UsuarioNuevo](assets/27-Registro-New-User.png)
 
 ### 2. Verifica en DBeaver que se guardó bien
 **Descripción:** Debe mostrar el usuario con rol `ROLE_USER`.
-![](assets/28-Verificacion-DBeaver.png)
+![VerificaDBeaver](assets/28-Verificacion-DBeaver.png)
 
 ### 3. Login con ese usuario
 **Descripción:** Debe responder `200 OK` con un nuevo token.
-![](assets/29-Login-User-Creado.png)
+![LoginUser](assets/29-Login-User-Creado.png)
 
 ### 4. Login con contraseña incorrecta (caso de error)
 **Descripción:** Mismo endpoint, pero con `"password": "incorrecta"`. Debe responder `401` (no `500`).
-![](assets/30-Contraseña-incorrecta.png)
+![LoginPassword](assets/30-Contraseña-incorrecta.png)
 
 ### 5. Registro con email duplicado (caso de error)
 **Descripción:** Debe responder `409 Conflict` ("El email ya está registrado").
-![](assets/31-Correo-duplicado.png)
+![RegistroEmail](assets/31-Correo-duplicado.png)
 
 ### 6. Endpoint protegido SIN token
 **Descripción:** Sin ningún header `Authorization`. Debe responder `401 Unauthorized` con el JSON de `ErrorResponse` que armamos en el `JwtAuthenticationEntryPoint` (con `timestamp`, `status`, `error`, `message`, `path`).
-![](assets/32-Endpoint-SIN-token.png)
+![EndPointSinToken](assets/32-Endpoint-SIN-token.png)
 
 ### 7. Endpoint protegido CON token
 **Descripción:** Ahora debe responder `200 OK` con la lista normal de productos.
-![](assets/33-Endpoint-CON-token.png)
+![EndPointConToken](assets/33-Endpoint-CON-token.png)
+
+## Práctica 12 (Spring Boot): Autenticación JWT, Autorización por Roles y Protección de Endpoints
+
+### 1. Creacion de con usuario normal
+![](assets/34-New-User.png)
+
+
+### 2. Login con usuario normal
+**Descripción:** Debe dar 403 Forbidden con mensaje "No tienes permisos para acceder a este recurso"
+![](assets/35-406-Sin-permisos.png)
+
+
+### 3. asignar ROLE_ADMIN a un usuario (DBeaver)
+**Descripción:** Ajusta el `user_id` al del usuario que quieres volver admin — verifica el id real en la tabla users
+![](assets/36-Permisos.png)
+
+
+### 4. Login con usuario ADMIN
+![](assets/37-Autorizacion.png)
+
+
+## Práctica 13 (Spring Boot): Validación de Propiedad de Recursos
+
+### 1. Captura de creación de producto con usuario autenticado
+**Descripción:** Crear producto con Usuario A, se usa el `Token` del Usuario A
+![](assets/41-Crear-Producto-UsuarioA.png)
+
+
+### 2. Captura de bloqueo por producto ajeno
+**Descripción:** Usuario B intenta actualizar producto de Usuario A
+![](assets/4)
+
+
+
+### 1.
+**Descripción:**
+![](assets/)
+
+
+### 1.
+**Descripción:**
+![](assets/)
+
 
 ---
 

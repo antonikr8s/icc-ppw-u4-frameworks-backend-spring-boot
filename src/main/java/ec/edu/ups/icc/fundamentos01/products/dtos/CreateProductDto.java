@@ -22,10 +22,8 @@ public class CreateProductDto {
     @Min(value = 0, message = "El stock no puede ser negativo")
     private Integer stock;
 
-    @NotNull(message = "El ID del usuario es obligatorio")
-    private Long userId;
+    // ELIMINADO: userId. El owner ahora se obtiene del token JWT (Práctica 13).
 
-    // Cambiado a Set de IDs para soportar múltiples categorías
     @NotEmpty(message = "Debe seleccionar al menos una categoría")
     private Set<Long> categoryIds;
 
@@ -37,8 +35,6 @@ public class CreateProductDto {
     public void setPrice(Double price) { this.price = price; }
     public Integer getStock() { return stock; }
     public void setStock(Integer stock) { this.stock = stock; }
-    public Long getUserId() { return userId; }
-    public void setUserId(Long userId) { this.userId = userId; }
     public Set<Long> getCategoryIds() { return categoryIds; }
     public void setCategoryIds(Set<Long> categoryIds) { this.categoryIds = categoryIds; }
 }

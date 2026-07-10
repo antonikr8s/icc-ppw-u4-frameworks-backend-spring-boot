@@ -11,6 +11,8 @@ import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -79,6 +81,44 @@ public class GlobalExceptionHandler {
      * usa un mensaje genérico para no revelar si el error fue el email
      * o la contraseña (buena práctica de seguridad: no dar pistas).
      */
+
+
+    // --- NUEVO: Práctica 12 ---
+    /*
+     * Se lanza cuando @PreAuthorize evalúa a false (Spring Security 6.x).
+     * Ej: usuario con ROLE_USER intenta acceder a un endpoint hasRole('ADMIN').
+     */
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAuthorizationDeniedException(
+            AuthorizationDeniedException ex,
+            HttpServletRequest request
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.FORBIDDEN,
+                "No tienes permisos para acceder a este recurso",
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+    /*
+     * Fallback legacy / para cuando se lance manualmente desde un servicio
+     * (esto lo usaremos en la Práctica 13 para validar ownership).
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(
+            AccessDeniedException ex,
+            HttpServletRequest request
+    ) {
+        ErrorResponse response = new ErrorResponse(
+                HttpStatus.FORBIDDEN,
+                "Acceso denegado. No tienes los permisos necesarios",
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
+
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ErrorResponse> handleAuthenticationException(
             AuthenticationException ex,
