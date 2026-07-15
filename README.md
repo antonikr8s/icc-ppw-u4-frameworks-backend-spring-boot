@@ -10,7 +10,7 @@
 </div>
 
 
-## Práctica 12 (Spring Boot): Protección de Endpoints con Roles
+## # Práctica 13 (Spring Boot): Validación de Propiedad de Recursos
 
 ## Autores
 
@@ -154,24 +154,28 @@
 ## Práctica 13 (Spring Boot): Validación de Propiedad de Recursos
 
 ### 1. Captura de creación de producto con usuario autenticado
-**Descripción:** Crear producto con Usuario A, se usa el `Token` del Usuario A
-![](assets/41-Crear-Producto-UsuarioA.png)
+**Descripción:** Crear producto con el `TOKEN` del Usuario X.
+![](assets/41-Creacion-Producto.png)
 
 
 ### 2. Captura de bloqueo por producto ajeno
-**Descripción:** Usuario B intenta actualizar producto de Usuario A
-![](assets/4)
+**Descripción:** Usuario Z intenta actualizar el producto de Usuario X. Resultado esperado `403 Forbidden`
+![](assets/42-Bloqueo.png)
 
 
 
-### 1.
-**Descripción:**
-![](assets/)
+### 3. Captura de eliminación de producto ajeno bloqueada
+**Descripción:** Usuario Z intenta eliminar el producto de Usuario X. `403 Forbidden`
+![](assets/43-Eliminacion.png)
 
 
-### 1.
-**Descripción:**
-![](assets/)
+### 4. Captura de ADMIN modificando producto ajeno
+**Descripción:** En `DBEAVER` se otorga permisos al usuario para tener el `ROLE_ADMIN`.
+![](assets/44-ADMIN.png)
+
+Despues de otorgar permisos de `ROLE_ADMIN`, se vuelve a ejecutar el `DELETE`. Resultado esperado `200 OK`.
+
+![](assets/45-DELETE.png)
 
 
 ---
