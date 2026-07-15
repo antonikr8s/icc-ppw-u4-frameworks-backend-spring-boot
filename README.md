@@ -5,12 +5,13 @@
 # Spring Boot – Autenticación y Autorización con JWT: Seguridad y Control de Acceso
 
 <div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="95">
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" width="95">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="80">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" width="80">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nginx/nginx-original.svg" width="80">
 </div>
 
 
-## # Práctica 13 (Spring Boot): Validación de Propiedad de Recursos
+## Práctica 13 (Spring Boot): Validación de Propiedad de Recursos
 
 ## Autores
 

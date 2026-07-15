@@ -1,0 +1,15 @@
+build/
+.gradle/
+.git/
+.idea/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+Dockerfile
+docker-compose.yml
+.dockerignore
+.env
+*.log
