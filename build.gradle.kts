@@ -35,6 +35,8 @@ dependencies {
 
 	// ============== DEPENDENCIA PARA MONITOREO Y PRODUCCIÓN (Práctica 14) ==============
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
+
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
 }
 
 tasks.named<Test>("test") {

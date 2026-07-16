@@ -72,15 +72,18 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-                        // Endpoints públicos (sin autenticación)
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/status/**").permitAll()
-
-                        // Práctica 14: Healthcheck público, resto de métricas solo para ADMIN
                         .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/actuator/**").hasRole("ADMIN")
 
-                        // Todo lo demás requiere token JWT válido
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**",
+                                "/v3/api-docs.yaml"
+                        ).permitAll()
+
                         .anyRequest().authenticated()
                 );
 

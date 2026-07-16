@@ -11,7 +11,7 @@ services:
       POSTGRES_USER: ups
       POSTGRES_PASSWORD: ups123
     ports:
-      - "5433:5432" # Expone el puerto hacia afuera si necesitas revisarla desde DBeaver
+      - "5435:5432" # Expone el puerto hacia afuera si necesitas revisarla desde DBeaver
     volumes:
       - postgres_production_data:/var/lib/postgresql/data
     healthcheck:
