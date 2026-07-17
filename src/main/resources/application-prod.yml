@@ -1,5 +1,7 @@
 server:
-  port: ${PORT:8080}
+  port: ${PORT}
+  servlet:
+    context-path: /api
 
 spring:
   datasource:
@@ -7,18 +9,27 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:10}
+      minimum-idle: ${DB_POOL_MIN_IDLE:2}
+      connection-timeout: ${DB_CONNECTION_TIMEOUT:20000}
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: ${JPA_DDL_AUTO:validate}
     properties:
       hibernate:
         format_sql: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+logging:
+  level:
+    root: ${ROOT_LOG_LEVEL:WARN}
+    ec.edu.ups.icc.fundamentos01: ${APP_LOG_LEVEL:INFO}
+
 jwt:
   secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION:1800000}
-  refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
-  issuer: fundamentos01-api
+  expiration: ${JWT_EXPIRATION}
+  refresh-expiration: ${JWT_REFRESH_EXPIRATION}
+  issuer: ${JWT_ISSUER:fundamentos01-api}
   header: Authorization
   prefix: "Bearer "

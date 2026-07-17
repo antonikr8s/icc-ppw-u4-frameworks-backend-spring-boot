@@ -35,3 +35,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Secretos y variables de entorno (Práctica 16)
+.env
+.env.*
+!.env.example

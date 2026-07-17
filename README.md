@@ -11,7 +11,7 @@
 </div>
 
 
-## Práctica 13 (Spring Boot): Validación de Propiedad de Recursos
+## Práctica 16: Despliegue portable de Spring Boot con Docker y Nginx en Ubuntu Server
 
 ## Autores
 
@@ -178,7 +178,20 @@ Despues de otorgar permisos de `ROLE_ADMIN`, se vuelve a ejecutar el `DELETE`. R
 
 ![](assets/45-DELETE.png)
 
+## Práctica 16: Despliegue portable de Spring Boot con Docker y Nginx en Ubuntu Server
 
+### 1. Instalacion de Docker en Ubuntu
+**Descripción:** Crear la red y el Postgres, dentro de la VM (por `SSH`)
+![](assets/46-Docker-VM.png)
+
+
+### 2. Clonar el repositorio dentro de la VM
+**Descripción:** Postgres-dev está corriendo correctamente en el puerto 5433, dentro de app-network
+![](assets/47-Git.png)
+
+### 3. Crear el archivo `.env.ubuntu`
+**Descripción:** Protege el archivo: `chmod 600 .env.ubuntu` y se confirma con `cat .env.ubuntu`
+![](assets/48-Nano.png)
 ---
 
 ## Explicación del Flujo de Datos Completo (API REST ↔ PostgreSQL)

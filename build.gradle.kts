@@ -7,12 +7,12 @@ plugins {
 group = "ec.edu.ups.icc"
 version = "0.0.1-SNAPSHOT"
 
+// Práctica 16: Java 21
 java {
 	toolchain {
-		languageVersion.set(JavaLanguageVersion.of(17))
+		languageVersion = JavaLanguageVersion.of(17)
 	}
 }
-
 repositories {
 	mavenCentral()
 }
@@ -27,16 +27,25 @@ dependencies {
 	runtimeOnly("org.postgresql:postgresql")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 
-	// ============== NUEVAS DEPENDENCIAS DE SEGURIDAD (Práctica 11) ==============
+	// Seguridad y JWT
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("io.jsonwebtoken:jjwt-api:0.12.6")
 	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.12.6")
 	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.12.6")
 
-	// ============== DEPENDENCIA PARA MONITOREO Y PRODUCCIÓN (Práctica 14) ==============
+	// Monitoreo
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
+}
+
+// Práctica 16: Nombre determinista para el JAR
+tasks.bootJar {
+	archiveFileName.set("app.jar")
+}
+
+tasks.jar {
+	enabled = false
 }
 
 tasks.named<Test>("test") {

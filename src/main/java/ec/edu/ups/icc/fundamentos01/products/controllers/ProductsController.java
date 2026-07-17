@@ -12,9 +12,19 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 import java.util.List;
 import java.util.Map;
 
+@Tag(
+        name = "Productos",
+        description = "Gestión de productos con paginación, roles y ownership"
+)
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/products")
 public class ProductsController {
@@ -25,62 +35,93 @@ public class ProductsController {
         this.service = service;
     }
 
+    @Operation(
+            summary = "Listar todos los productos (Sin paginar)",
+            description = "Devuelve una lista completa de productos. Solo accesible para administradores."
+    )
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public List<ProductResponseDto> findAll() { return service.findAll(); }
+    public List<ProductResponseDto> findAll() {
+        return service.findAll();
+    }
 
+    @Operation(
+            summary = "Buscar producto por ID",
+            description = "Obtiene los detalles de un producto específico mediante su identificador."
+    )
     @GetMapping("/{id}")
-    public ProductResponseDto findOne(@PathVariable Long id) { return service.findOne(id); }
+    public ProductResponseDto findOne(@PathVariable Long id) {
+        return service.findOne(id);
+    }
 
+    @Operation(
+            summary = "Listar productos con Paginación (Page)",
+            description = "Devuelve los productos paginados, incluyendo el conteo total de elementos."
+    )
     @GetMapping("/page")
     public Page<ProductResponseDto> findAllPage(@Valid @ModelAttribute PaginationDto pagination) {
         return service.findAllPage(pagination);
     }
 
-    // --- LÍNEAS MODIFICADAS ---
+    @Operation(
+            summary = "Listar productos con Paginación (Slice)",
+            description = "Devuelve una porción de productos sin realizar el conteo total, ideal para scroll infinito. Aplica filtros de ownership."
+    )
     @GetMapping("/slice")
     public Slice<ProductResponseDto> findAllSlice(
             @Valid @ModelAttribute PaginationDto pagination,
-            @AuthenticationPrincipal UserDetailsImpl currentUser
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl currentUser
     ) {
         return service.findAllSlice(pagination, currentUser);
     }
 
-    /*
-     * POST /api/products
-     * El owner ya no viene del body: se obtiene del token JWT (Práctica 13).
-     */
+    @Operation(
+            summary = "Crear un nuevo producto",
+            description = "Registra un producto en el sistema. El owner se asigna automáticamente a través del token JWT."
+    )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ProductResponseDto create(
             @Valid @RequestBody CreateProductDto dto,
-            @AuthenticationPrincipal UserDetailsImpl currentUser
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl currentUser
     ) {
         return service.create(dto, currentUser);
     }
 
+    @Operation(
+            summary = "Actualización total de un producto",
+            description = "Reemplaza todos los datos de un producto existente. Se valida el ownership del usuario actual."
+    )
     @PutMapping("/{id}")
     public ProductResponseDto update(
             @PathVariable Long id,
             @Valid @RequestBody UpdateProductDto dto,
-            @AuthenticationPrincipal UserDetailsImpl currentUser
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl currentUser
     ) {
         return service.update(id, dto, currentUser);
     }
 
+    @Operation(
+            summary = "Actualización parcial de un producto (PATCH)",
+            description = "Modifica únicamente los campos enviados en la petición. Se valida el ownership."
+    )
     @PatchMapping("/{id}")
     public ProductResponseDto partialUpdate(
             @PathVariable Long id,
             @Valid @RequestBody PartialUpdateProductDto dto,
-            @AuthenticationPrincipal UserDetailsImpl currentUser
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl currentUser
     ) {
         return service.partialUpdate(id, dto, currentUser);
     }
 
+    @Operation(
+            summary = "Eliminar un producto",
+            description = "Borra un producto del sistema mediante su ID. Requiere ownership o rol de administrador."
+    )
     @DeleteMapping("/{id}")
     public Map<String, String> delete(
             @PathVariable Long id,
-            @AuthenticationPrincipal UserDetailsImpl currentUser
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetailsImpl currentUser
     ) {
         service.delete(id, currentUser);
         return Map.of("message", "Deleted successfully");
