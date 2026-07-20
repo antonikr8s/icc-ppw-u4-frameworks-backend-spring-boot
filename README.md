@@ -178,6 +178,18 @@ Despues de otorgar permisos de `ROLE_ADMIN`, se vuelve a ejecutar el `DELETE`. R
 
 ![](assets/45-DELETE.png)
 
+## Práctica 14 (Spring Boot): Renovación de Access Token con Refresh Token
+
+### 1. Captura de refresh exitoso
+
+![](assets/50-Refresh.png)
+
+## Práctica 15 (Spring Boot): Documentación de Endpoints con Swagger, OpenAPI y Seguridad JWT
+
+### 1. Levantamiento del servicio
+
+![](assets/51-Servicio.png)
+
 ## Práctica 16: Despliegue portable de Spring Boot con Docker y Nginx en Ubuntu Server
 
 ### 1. Instalacion de Docker en Ubuntu
@@ -188,6 +200,10 @@ Despues de otorgar permisos de `ROLE_ADMIN`, se vuelve a ejecutar el `DELETE`. R
 ### 2. Clonar el repositorio dentro de la VM
 **Descripción:** Postgres-dev está corriendo correctamente en el puerto 5433, dentro de app-network
 ![](assets/47-Git.png)
+
+### 3. Crear el archivo `.env.ubuntu`
+**Descripción:** Protege el archivo: `chmod 600 .env.ubuntu` y se confirma con `cat .env.ubuntu`
+![](assets/48-Nano.png)
 
 ### 3. Crear el archivo `.env.ubuntu`
 **Descripción:** Protege el archivo: `chmod 600 .env.ubuntu` y se confirma con `cat .env.ubuntu`
