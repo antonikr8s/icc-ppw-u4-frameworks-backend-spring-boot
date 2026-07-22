@@ -40,6 +40,10 @@
 ---
 
 ## Práctica 6 (Spring Boot): Validación de DTOs y Control de Datos de Entrada
+<div align="center">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="55">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg" width="55">
+</div>
 
 ### Prueba 1: Validar formato erróneo
 ![Bad](assets/09-Bad400.png)
@@ -63,6 +67,10 @@
 
 ## Práctica 7 (Spring Boot): Manejo Global de Errores y Excepciones
 
+<div align="center">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="55">
+</div>
+
 ### Prueba 1: Buscar producto inexistente
 ![notFound](assets/15-notFound.png)
 
@@ -82,6 +90,11 @@
 ---
 
 ## Práctica 8 (Spring Boot): Relaciones ManyToOne, Foreign Keys y Consultas Relacionales
+
+<div align="center">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="55">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" width="55">
+</div>
 
 ### 1. Creacion  de una categoria
 ![PP](assets/52-2Creation.png)
@@ -111,6 +124,11 @@ En Spring Data JPA, las relaciones entre las tablas de la base de datos se repre
 ---
 
 ## Práctica 9 (Spring Boot): Request Parameters, Consultas Relacionadas y Filtrado con JPA
+
+<div align="center">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="55">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" width="55">
+</div>
 
 ### 1: Producto con varias categorías
 **Descripción:** Vamos a crear un producto complejo que encaje en varias de las categorías
@@ -157,6 +175,11 @@ De esta forma, cada capa cumple una función específica y el filtrado se realiz
 ---
 
 ## Práctica 10 (Spring Boot): Paginación de Productos con Page, Slice y Pageable
+
+<div align="center">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="55">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" width="55">
+</div>
 
 ### 1. Ejecutar `seed_data.sql` (cargar los datos)
 ![Power](assets/22-PowerShell.png)
@@ -231,6 +254,11 @@ Por esta razón, `Slice<T>` puede ofrecer un **mejor rendimiento** cuando no es 
 
 ## Práctica 11 (Spring Boot): Autenticación JWT, Autorización por Roles y Protección de Endpoints
 
+<div align="center">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="55">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" width="55">
+</div>
+
 ### 1. Registro de usuario nuevo
 **Descripción:** Debe responder `201 Created` con un `token`, el `userId`, `name`, `email` y `roles`: `["ROLE_USER"]`.
 ![UsuarioNuevo](assets/27-Registro-New-User.png)
@@ -263,6 +291,11 @@ Por esta razón, `Slice<T>` puede ofrecer un **mejor rendimiento** cuando no es 
 
 ## Práctica 12 (Spring Boot): Autenticación JWT, Autorización por Roles y Protección de Endpoints
 
+<div align="center">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="55">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" width="55">
+</div>
+
 ### 1. Creacion de con usuario normal
 ![](assets/34-New-User.png)
 
@@ -291,6 +324,11 @@ Por esta razón, `Slice<T>` puede ofrecer un **mejor rendimiento** cuando no es 
 ---
 
 ## Práctica 13 (Spring Boot): Validación de Propiedad de Recursos
+
+<div align="center">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="55">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" width="55">
+</div>
 
 ### 1. Captura de creación de producto con usuario autenticado
 **Descripción:** Crear producto con el `TOKEN` del Usuario X.
@@ -336,40 +374,42 @@ Esto permite que un administrador pueda modificar o eliminar cualquier producto 
 
 ## Práctica 14 (Spring Boot): Renovación de Access Token con Refresh Token
 
+<div align="center">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="55">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" width="55">
+</div>
+
 ### 1. Captura de un usuario creado SIN `Refresh Token`
 **Descripción:** Anteriormente, al crear un usuario, el sistema únicamente mostraba el `Access Token`.
 
 ![](assets/50-Refresh.png)
 
 ### 2. Captura de un usuario creado CON `Refresh Token`
-
 **Descripción:** Ahora, cada nuevo usuario creado obtiene también un `Refresh Token`.
 
-![](assets/50-Refresh.png)
+![](assets/63-Tokk.png)
 
 ### 3. Login con Refresh Token `Refresh Token`
-
 **Descripción:** La respuesta muestra un código `200 OK` junto con el `Access Token`, el `Refresh Token` y los roles del usuario.
 
 ![](assets/64-LoginRefresh.png)
 
 ### 4. Refresh Exitoso
-
 **Descripción:** La respuesta muestra un código `200 OK` con un nuevo `Access Token` y un nuevo `Refresh Token`. Esto demuestra que se realizó correctamente la rotación del token.
 
 ![](assets/65-RefreshRefresh.png)
 
 ### 5. Logout
-
 **Descripción:** Al cerrar sesión, el sistema responde con el código `204 No Content`.
 
 ![](assets/66-Logout.png)
 
 ### 6. Refresh después de Logout (Error)
-
 **Descripción:** Después de cerrar sesión, se intenta utilizar el `Refresh Token` anterior. El sistema responde con un código `400 Bad Request`, indicando que el token ya no es válido o fue revocado.
 
 ![](assets/67-Log-Error.png)
+
+---
 
 ## Preguntas y Respuestas
 
@@ -399,44 +439,53 @@ De esta manera, el token anterior ya no puede volver a utilizarse. Esto mejora l
 
 ## Práctica 15 (Spring Boot): Documentación de Endpoints con Swagger, OpenAPI y Seguridad JWT
 
+<div align="center">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="55">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" width="55">
+</div>
+
 ### Captura 1. Swagger UI cargado
 **Descripción:** Se levanta el servicio y se accede a la ruta `http://localhost:8080/api/swagger-ui/index.html, evidenciando la lista de controladores y los endpoints agrupados por tags.
+
 ![](assets/68-SSwa.png)
 
 ### Captura 2. JSON OpenAPI
 **Descripción:** Se consulta la ruta `/api/v3/api-docs` para mostrar el documento generado con su estructura principal, incluyendo `openapi`, `paths` y `components`.
+
 ![](assets/69-Api.png)
 
 ### Captura 3. AuthController documentado
-
 **Descripción:** Se expande el controlador de autenticación en Swagger UI, mostrando los endpoints `POST /api/auth/register` y `POST /api/auth/login` junto con sus respectivas descripciones.
+
 ![](assets/70auth.png)
 
 
 ### Captura 4. Botón Authorize
-
 **Descripción:** Se abre el botón `Authorize`, mostrando que el esquema de seguridad `bearerAuth` está configurado para recibir tokens JWT.
+
 ![](assets/71-B.png)
 
 
 ### Captura 5. Endpoint protegido sin token
+**Descripción:** Se intenta acceder al endpoint `GET /api/products/page?page=0&size=5` desde Swagger sin proporcionar un token. 
 
-**Descripción:** Se intenta acceder al endpoint `GET /api/products/page?page=0&size=5` desde Swagger sin proporcionar un token. El sistema bloquea la petición y devuelve un error `401 Unauthorized`.
 ![](assets/72-Ex.png)
+
+El sistema bloquea la petición y devuelve un error `401 Unauthorized`.
 
 ![](assets/73-Res.png)
 
 
 ### Captura 6. Endpoint protegido con token desde Swagger
-
-**Descripción:** Se agrega un token válido en Swagger y se vuelve a ejecutar el endpoint `GET /api/products/page?page=0&size=5`. La petición se realiza correctamente y devuelve una respuesta `200 OK`.
+**Descripción:** Se agrega un token válido en Swagger y se vuelve a ejecutar el endpoint `GET /api/products/page?page=0&size=5`. 
 
 ![](assets/74-Add.png)
+
+La petición se realiza correctamente y devuelve una respuesta `200 OK`.
 
 ![](assets/75-GET.png)
 
 ### Captura 7. Endpoint ADMIN con usuario normal
-
 **Descripción:** Se utiliza el token de un usuario con `ROLE_USER` para acceder al endpoint administrativo `GET /api/products`. El sistema bloquea el acceso porque el usuario no tiene los permisos necesarios y devuelve un error `403 Forbidden`.
 
 ![](assets/76-PAgg.png)
@@ -450,6 +499,8 @@ El acceso es permitido y se obtiene una respuesta `200 OK`.
 
 ![](assets/78-Autorizathed.png)
 
+---
+
 ## Preguntas y Respuestas
 
 ### 1. ¿Cuál es la diferencia entre Swagger UI y OpenAPI?
@@ -457,13 +508,11 @@ El acceso es permitido y se obtiene una respuesta `200 OK`.
 **OpenAPI** es el estándar que define la estructura y descripción de una API. **Swagger UI** es una herramienta que utiliza esa documentación para mostrar los endpoints de forma visual y permitir probar las peticiones directamente desde el navegador.
 
 
-
 ### 2. ¿Por qué Swagger puede ser público pero los endpoints seguir protegidos?
 
 Swagger puede ser público porque su función es mostrar y documentar los endpoints de la API. Sin embargo, esto no significa que todos los endpoints sean públicos.
 
 Los endpoints protegidos siguen utilizando las reglas de seguridad de Spring Security. Por ejemplo, un usuario puede acceder a Swagger, pero necesitará un JWT válido y los permisos correspondientes para consumir un endpoint protegido.
-
 
 
 ### 3. ¿Cómo se configura Swagger para enviar un JWT en `Authorization: Bearer`?
@@ -476,34 +525,81 @@ Luego, Swagger UI muestra el botón **Authorize**, donde se puede ingresar el to
 
 De esta manera, los endpoints protegidos pueden validar el JWT y determinar si el usuario tiene permiso para acceder al recurso.
 
-
-
-
-
 ---
-
-
-
-
 
 ## Práctica 16: Despliegue portable de Spring Boot con Docker y Nginx en Ubuntu Server
 
+<div align="center">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg" width="55">
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" width="55">
+</div>
+
 ### 1. Instalacion de Docker en Ubuntu
 **Descripción:** Crear la red y el Postgres, dentro de la VM (por `SSH`)
+
 ![](assets/46-Docker-VM.png)
 
 
 ### 2. Clonar el repositorio dentro de la VM
 **Descripción:** Postgres-dev está corriendo correctamente en el puerto 5433, dentro de app-network
+
 ![](assets/47-Git.png)
 
 ### 3. Crear el archivo `.env.ubuntu`
 **Descripción:** Protege el archivo: `chmod 600 .env.ubuntu` y se confirma con `cat .env.ubuntu`
+
 ![](assets/48-Nano.png)
 
-### 3. Crear el archivo `.env.ubuntu`
-**Descripción:** Protege el archivo: `chmod 600 .env.ubuntu` y se confirma con `cat .env.ubuntu`
-![](assets/48-Nano.png)
+
+## 4. Swagger UI cargado con configuración personalizada
+**Descripción:** Se inicia el servicio y se accede a Swagger UI mediante la ruta `http://192.168.56.103:8080/api/swagger-ui/index.html`.
+
+Se evidencia que Swagger UI y la documentación de OpenAPI son de acceso público. La interfaz muestra la configuración personalizada de la API con el título **"API de Programación y Plataformas Web"**, la versión **"1.0.0"** y el contexto global `/api`.
+
+![](assets/79-Configuracion.png)
+
+
+## 5. Modal de Autorización (Esquema Bearer JWT)
+**Descripción:** Se abre el botón **"Authorize"** en Swagger UI. Se evidencia que está configurado el esquema de seguridad `bearerAuth`, utilizando autenticación de tipo `Bearer` con tokens JWT.
+
+El modal también muestra el mensaje personalizado: **"Ingrese el JWT generado en /auth/login"**.
+
+![](assets/80-Autoriza.png)
+
+
+## 6. Generación del Token en endpoint público
+**Descripción:** Se ejecuta correctamente el endpoint de inicio de sesión `/auth/login`. Como esta ruta es pública, no necesita un token para ser utilizada.
+
+![](assets/81-Register.png)
+
+Después de ingresar las credenciales correctas, el sistema genera y devuelve un token JWT válido.
+
+![](assets/82-Token.png)
+
+
+## 7. Restricción de seguridad en endpoints protegidos (Error 401/403)
+**Descripción:** Se intenta ejecutar un endpoint protegido desde Swagger UI sin estar autenticado.
+
+El sistema rechaza la petición porque el usuario no tiene una autenticación válida. Esto demuestra que los endpoints protegidos requieren autenticación y que la aplicación utiliza una política de sesión `STATELESS`.
+
+![](assets/83-Listar.png)
+
+
+## 8. Bloqueo de seguridad
+**Descripción:** Demuestra que la autorización basada en roles (RBAC) está funcionando, impidiendo que un `ROLE_USER` acceda a un recurso de `ROLE_ADMIN`.
+
+![](assets/83-Listar.png)
+
+
+
+## 9. Acceso exitoso inyectando el Token JWT
+**Descripción:** Se ingresa un token JWT válido (`ROLE_ADMIN`) mediante el botón **"Authorize"** y se ejecuta nuevamente un endpoint protegido.
+
+Swagger agrega automáticamente el token en la cabecera `Authorization` utilizando el formato `Bearer <token>`. El servidor valida el token y permite el acceso, devolviendo una respuesta `200 OK`.
+
+![](assets/84-Admin.png)
+
+
 ---
 
 ## Explicación del Flujo de Datos Completo (API REST ↔ PostgreSQL)
