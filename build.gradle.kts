@@ -36,7 +36,8 @@ dependencies {
 	// Monitoreo
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 
-	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
+	//implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
 }
 
 // Práctica 16: Nombre determinista para el JAR

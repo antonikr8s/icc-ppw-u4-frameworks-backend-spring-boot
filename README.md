@@ -37,6 +37,8 @@
 **Descripción:** Evidencia del estado final de la base de datos `devdb` en DBeaver tras la ejecución del escenario de pruebas solicitado en clase. Se verifica el correcto funcionamiento del ciclo de vida de los datos gestionados por JPA e Hibernate a través de las siguientes observaciones:
 ![Update](assets/08-update.png)
 
+---
+
 ## Práctica 6 (Spring Boot): Validación de DTOs y Control de Datos de Entrada
 
 ### Prueba 1: Validar formato erróneo
@@ -57,6 +59,8 @@
 ### Verificar en DBeaver
 ![Update](assets/14-Update.png)
 
+---
+
 ## Práctica 7 (Spring Boot): Manejo Global de Errores y Excepciones
 
 ### Prueba 1: Buscar producto inexistente
@@ -75,6 +79,8 @@
 ### Actualización en DBeaver
 ![Update-2](assets/19-Update-2.png)
 
+---
+
 ## Práctica 8 (Spring Boot): Relaciones ManyToOne, Foreign Keys y Consultas Relacionales
 
 ### 1. Creacion  de una categoria
@@ -86,8 +92,11 @@
 ### 3. Descripción de la tabla products en PostgreSQL
 **Descripción:** Para ver el producto creado
 ![PP](assets/54-4.png)
+
 **Descripción:** Para ver la relación
 ![PP](assets/55-5.png)
+
+## Preguntas y Respuestas
 
 ### Explicación 1: Funcionamiento de las relaciones `@ManyToOne` y `@OneToMany` en JPA
 
@@ -99,6 +108,7 @@ En Spring Data JPA, las relaciones entre las tablas de la base de datos se repre
 
 - **`FetchType.LAZY`:** Indica que los datos relacionados se cargan **solo cuando son necesarios**. Por ejemplo, los productos de una categoría se consultan únicamente cuando el programa necesita acceder a ellos. Esto ayuda a mejorar el rendimiento.
 
+---
 
 ## Práctica 9 (Spring Boot): Request Parameters, Consultas Relacionadas y Filtrado con JPA
 
@@ -117,6 +127,8 @@ En Spring Data JPA, las relaciones entre las tablas de la base de datos se repre
 ### 4. Consulta con filtros por categoría
 ![n](assets/58.png)
 
+## Preguntas y Respuestas
+
 ### Explicación 1: Relación `@ManyToMany` y `@JoinTable`
 
 La relación `@ManyToMany` se utiliza cuando **un producto puede tener varias categorías y una categoría puede pertenecer a varios productos**.
@@ -130,7 +142,7 @@ En Spring Boot, esto se configura en la entidad `Product` mediante la anotación
 
 De esta manera, la tabla intermedia permite relacionar fácilmente los productos con sus diferentes categorías.
 
----
+
 
 ### Explicación 2: Filtrado dinámico y Repositorios
 
@@ -142,41 +154,42 @@ Estos métodos se utilizan desde la capa de servicio, mientras que el controlado
 
 De esta forma, cada capa cumple una función específica y el filtrado se realiza directamente en la base de datos, evitando cargar datos innecesarios.
 
+---
+
 ## Práctica 10 (Spring Boot): Paginación de Productos con Page, Slice y Pageable
 
-### Ejecutar `seed_data.sql` (cargar los datos)
+### 1. Ejecutar `seed_data.sql` (cargar los datos)
 ![Power](assets/22-PowerShell.png)
 
-### Captura de respuesta con Page
+### 2. Captura de respuesta con Page
 **Descripción:** `GET` /api/products/page?page=0&size=5
 ![Page](assets/23-Respuesta-Page.png)
 
-### Captura de respuesta con Slice
+### 3. Captura de respuesta con Slice
 **Descripción:** `GET` /api/products/slice?page=0&size=5
 ![Slice](assets/24-Respuesta-Slice.png)
 
-### Captura de error por paginación inválida
+### 4. Captura de error por paginación inválida
 **Descripción:** `GET` /api/products/page?page=-1&size=0
 ![Paginacion-Invalida](assets/25-Paginacion-invalida.png)
 
-### Captura de endpoint de categoría paginado
+### 5. Captura de endpoint de categoría paginado
 **Descripción:** `GET` /api/categories/2/products/page?page=110&size=5
 ![Categoria-Paginado](assets/26-Categoria-paginado.png)
 
-### Captura de endpoint de categoría paginado
+### 6. Captura de endpoint de categoría paginado
 **Descripción:** `GET` /api/categories/2/products/slice?page=10&size=5
 ![Update](assets/26-Categoria-paginado.png)
 
-## Práctica 10 (Spring Boot): Paginación de Productos con Page, Slice y Pageable
-
-### 1. Paginación General con `Page<T>` (`GET /api/products/page`)
+### 7. Paginación General con `Page<T>` (`GET /api/products/page`)
 **Descripción:** Respuesta esperada: Un objeto JSON que incluye la lista content junto con la estructura de metadatos completa (totalElements, totalPages, number, size).
 ![notFound](assets/59-1PAg.png)
 
-### 2: Paginación General con `Slice<T>` (`GET /api/products/slice`)
+### 8: Paginación General con `Slice<T>` (`GET /api/products/slice`)
 **Descripción:** Respuesta esperada: Un objeto JSON con el listado content y banderas booleanas simplificadas (first, last, hasNext, hasPrevious, numberOfElements), sin incluir totalElements ni totalPages.
 ![notFound](assets/60-Slice.png)
 
+## Preguntas y Respuestas
 
 ### 1. Explicación Técnica: Diferencia entre `Page<T>` y `Slice<T>`
 
@@ -214,6 +227,8 @@ Cuando la base de datos contiene una gran cantidad de registros, realizar una co
 
 Por esta razón, `Slice<T>` puede ofrecer un **mejor rendimiento** cuando no es necesario conocer el número total de páginas o registros.
 
+---
+
 ## Práctica 11 (Spring Boot): Autenticación JWT, Autorización por Roles y Protección de Endpoints
 
 ### 1. Registro de usuario nuevo
@@ -244,6 +259,8 @@ Por esta razón, `Slice<T>` puede ofrecer un **mejor rendimiento** cuando no es 
 **Descripción:** Ahora debe responder `200 OK` con la lista normal de productos.
 ![EndPointConToken](assets/33-Endpoint-CON-token.png)
 
+---
+
 ## Práctica 12 (Spring Boot): Autenticación JWT, Autorización por Roles y Protección de Endpoints
 
 ### 1. Creacion de con usuario normal
@@ -271,6 +288,7 @@ Por esta razón, `Slice<T>` puede ofrecer un **mejor rendimiento** cuando no es 
 **Descripción:** El usuario 11 está intentando borrar el producto del usuario 1,
 ![notFound](assets/62-2.png)
 
+---
 
 ## Práctica 13 (Spring Boot): Validación de Propiedad de Recursos
 
@@ -298,6 +316,7 @@ Despues de otorgar permisos de `ROLE_ADMIN`, se vuelve a ejecutar el `DELETE`. R
 
 ![](assets/45-DELETE.png)
 
+## Preguntas y Respuestas
 
 ### 1. Bloqueo a usuarios estándar (`403 Forbidden`)
 
@@ -313,17 +332,159 @@ Los usuarios con el rol `ROLE_ADMIN` tienen permisos especiales y pueden ignorar
 
 Esto permite que un administrador pueda modificar o eliminar cualquier producto del sistema cuando sea necesario, por ejemplo, para realizar tareas de mantenimiento o administración.
 
+---
+
 ## Práctica 14 (Spring Boot): Renovación de Access Token con Refresh Token
 
-### 1. Captura de refresh exitoso
+### 1. Captura de un usuario creado SIN `Refresh Token`
+**Descripción:** Anteriormente, al crear un usuario, el sistema únicamente mostraba el `Access Token`.
 
 ![](assets/50-Refresh.png)
 
+### 2. Captura de un usuario creado CON `Refresh Token`
+
+**Descripción:** Ahora, cada nuevo usuario creado obtiene también un `Refresh Token`.
+
+![](assets/50-Refresh.png)
+
+### 3. Login con Refresh Token `Refresh Token`
+
+**Descripción:** La respuesta muestra un código `200 OK` junto con el `Access Token`, el `Refresh Token` y los roles del usuario.
+
+![](assets/64-LoginRefresh.png)
+
+### 4. Refresh Exitoso
+
+**Descripción:** La respuesta muestra un código `200 OK` con un nuevo `Access Token` y un nuevo `Refresh Token`. Esto demuestra que se realizó correctamente la rotación del token.
+
+![](assets/65-RefreshRefresh.png)
+
+### 5. Logout
+
+**Descripción:** Al cerrar sesión, el sistema responde con el código `204 No Content`.
+
+![](assets/66-Logout.png)
+
+### 6. Refresh después de Logout (Error)
+
+**Descripción:** Después de cerrar sesión, se intenta utilizar el `Refresh Token` anterior. El sistema responde con un código `400 Bad Request`, indicando que el token ya no es válido o fue revocado.
+
+![](assets/67-Log-Error.png)
+
+## Preguntas y Respuestas
+
+### 1. ¿Cuál es la diferencia entre `Access Token` y `Refresh Token`?
+
+- **Access Token:** Es un token de corta duración. En este sistema tiene una duración de 30 minutos y se utiliza para acceder a los endpoints protegidos mediante la cabecera `Authorization: Bearer <token>`.
+
+- **Refresh Token:** Es un token de mayor duración. En este sistema tiene una duración de 7 días y se almacena en la base de datos. Se utiliza para solicitar nuevos tokens cuando el `Access Token` expira, evitando que el usuario tenga que iniciar sesión nuevamente.
+
+---
+
+### 2. ¿Por qué el `Refresh Token` no debe usarse en `Authorization: Bearer`?
+
+El `Refresh Token` no se utiliza para acceder a los endpoints protegidos. El filtro de seguridad verifica que el token utilizado sea un `Access Token`.
+
+Si se intenta enviar un `Refresh Token` en `Authorization: Bearer`, el sistema lo rechaza y devuelve un error `401 Unauthorized`. Esto evita que el token de renovación se utilice para acceder directamente a los recursos protegidos.
+
+---
+
+### 3. ¿Qué significa rotar un `Refresh Token`?
+
+La rotación significa que, cada vez que se utiliza un `Refresh Token` para obtener nuevos tokens, el sistema invalida el token anterior y genera uno nuevo.
+
+De esta manera, el token anterior ya no puede volver a utilizarse. Esto mejora la seguridad y reduce el riesgo de que un token antiguo pueda ser reutilizado.
+
+---
+
 ## Práctica 15 (Spring Boot): Documentación de Endpoints con Swagger, OpenAPI y Seguridad JWT
 
-### 1. Levantamiento del servicio
+### Captura 1. Swagger UI cargado
+**Descripción:** Se levanta el servicio y se accede a la ruta `http://localhost:8080/api/swagger-ui/index.html, evidenciando la lista de controladores y los endpoints agrupados por tags.
+![](assets/68-SSwa.png)
 
-![](assets/51-Servicio.png)
+### Captura 2. JSON OpenAPI
+**Descripción:** Se consulta la ruta `/api/v3/api-docs` para mostrar el documento generado con su estructura principal, incluyendo `openapi`, `paths` y `components`.
+![](assets/69-Api.png)
+
+### Captura 3. AuthController documentado
+
+**Descripción:** Se expande el controlador de autenticación en Swagger UI, mostrando los endpoints `POST /api/auth/register` y `POST /api/auth/login` junto con sus respectivas descripciones.
+![](assets/70auth.png)
+
+
+### Captura 4. Botón Authorize
+
+**Descripción:** Se abre el botón `Authorize`, mostrando que el esquema de seguridad `bearerAuth` está configurado para recibir tokens JWT.
+![](assets/71-B.png)
+
+
+### Captura 5. Endpoint protegido sin token
+
+**Descripción:** Se intenta acceder al endpoint `GET /api/products/page?page=0&size=5` desde Swagger sin proporcionar un token. El sistema bloquea la petición y devuelve un error `401 Unauthorized`.
+![](assets/72-Ex.png)
+
+![](assets/73-Res.png)
+
+
+### Captura 6. Endpoint protegido con token desde Swagger
+
+**Descripción:** Se agrega un token válido en Swagger y se vuelve a ejecutar el endpoint `GET /api/products/page?page=0&size=5`. La petición se realiza correctamente y devuelve una respuesta `200 OK`.
+
+![](assets/74-Add.png)
+
+![](assets/75-GET.png)
+
+### Captura 7. Endpoint ADMIN con usuario normal
+
+**Descripción:** Se utiliza el token de un usuario con `ROLE_USER` para acceder al endpoint administrativo `GET /api/products`. El sistema bloquea el acceso porque el usuario no tiene los permisos necesarios y devuelve un error `403 Forbidden`.
+
+![](assets/76-PAgg.png)
+
+### Captura 8. Endpoint ADMIN con usuario administrador
+
+**Descripción:** Se utiliza el token de un usuario con `ROLE_ADMIN` para acceder al mismo endpoint `GET /api/products`. 
+
+![](assets/77-Permisos.png)
+El acceso es permitido y se obtiene una respuesta `200 OK`.
+
+![](assets/78-Autorizathed.png)
+
+## Preguntas y Respuestas
+
+### 1. ¿Cuál es la diferencia entre Swagger UI y OpenAPI?
+
+**OpenAPI** es el estándar que define la estructura y descripción de una API. **Swagger UI** es una herramienta que utiliza esa documentación para mostrar los endpoints de forma visual y permitir probar las peticiones directamente desde el navegador.
+
+
+
+### 2. ¿Por qué Swagger puede ser público pero los endpoints seguir protegidos?
+
+Swagger puede ser público porque su función es mostrar y documentar los endpoints de la API. Sin embargo, esto no significa que todos los endpoints sean públicos.
+
+Los endpoints protegidos siguen utilizando las reglas de seguridad de Spring Security. Por ejemplo, un usuario puede acceder a Swagger, pero necesitará un JWT válido y los permisos correspondientes para consumir un endpoint protegido.
+
+
+
+### 3. ¿Cómo se configura Swagger para enviar un JWT en `Authorization: Bearer`?
+
+Se configura un esquema de seguridad `bearerAuth` en OpenAPI indicando que la API utiliza autenticación mediante un token JWT.
+
+Luego, Swagger UI muestra el botón **Authorize**, donde se puede ingresar el token. Al realizar una petición, Swagger lo envía automáticamente en la cabecera:
+
+`Authorization: Bearer <token>`
+
+De esta manera, los endpoints protegidos pueden validar el JWT y determinar si el usuario tiene permiso para acceder al recurso.
+
+
+
+
+
+---
+
+
+
+
 
 ## Práctica 16: Despliegue portable de Spring Boot con Docker y Nginx en Ubuntu Server
 
