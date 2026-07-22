@@ -75,6 +75,72 @@
 ### Actualización en DBeaver
 ![Update-2](assets/19-Update-2.png)
 
+## Práctica 8 (Spring Boot): Relaciones ManyToOne, Foreign Keys y Consultas Relacionales
+
+### 1. Creacion  de una categoria
+![PP](assets/52-2Creation.png)
+
+### 2. Creación de un producto con sus relaciones
+![PP](assets/53-33-Producto.png)
+
+### 3. Descripción de la tabla products en PostgreSQL
+**Descripción:** Para ver el producto creado
+![PP](assets/54-4.png)
+**Descripción:** Para ver la relación
+![PP](assets/55-5.png)
+
+### Explicación 1: Funcionamiento de las relaciones `@ManyToOne` y `@OneToMany` en JPA
+
+En Spring Data JPA, las relaciones entre las tablas de la base de datos se representan en las clases del programa usando anotaciones. En este caso, se relacionan las entidades **Producto** y **Categoría**.
+
+- **`@ManyToOne` en Producto:** Indica que **muchos productos pueden pertenecer a una sola categoría**. Por ejemplo, varios productos pueden pertenecer a la categoría "Tecnología". `@JoinColumn(name = "category_id")` indica la columna que se utiliza para relacionar el producto con su categoría.
+
+- **`@OneToMany` en Categoría:** Indica que **una categoría puede tener muchos productos**. Por ejemplo, una categoría puede contener varios productos. `mappedBy = "category"` indica que la relación ya está controlada desde la entidad `Producto`.
+
+- **`FetchType.LAZY`:** Indica que los datos relacionados se cargan **solo cuando son necesarios**. Por ejemplo, los productos de una categoría se consultan únicamente cuando el programa necesita acceder a ellos. Esto ayuda a mejorar el rendimiento.
+
+
+## Práctica 9 (Spring Boot): Request Parameters, Consultas Relacionadas y Filtrado con JPA
+
+### 1: Producto con varias categorías
+**Descripción:** Vamos a crear un producto complejo que encaje en varias de las categorías
+![n](assets/56-Varias-Cat.png)
+
+### 2. Consulta con filtros por usuario
+**Descripción:** Se muestra los productos que creó un usuario específico.
+![n](assets/57-Pp.png)
+
+### 3. Consulta con filtros por nombres
+**Descripción:** Se muestra los productos por el nombre 'Sensores'.
+![n](assets/57-Pp.png)
+
+### 4. Consulta con filtros por categoría
+![n](assets/58.png)
+
+### Explicación 1: Relación `@ManyToMany` y `@JoinTable`
+
+La relación `@ManyToMany` se utiliza cuando **un producto puede tener varias categorías y una categoría puede pertenecer a varios productos**.
+
+Como esta relación conecta muchas categorías con muchos productos, se necesita una **tabla intermedia** en la base de datos para relacionar ambas entidades.
+
+En Spring Boot, esto se configura en la entidad `Product` mediante la anotación `@JoinTable`. En ella se indica el nombre de la tabla intermedia, por ejemplo, `product_categories`, y las columnas que relacionan los productos y las categorías.
+
+- **`joinColumns`:** Indica la columna que contiene el ID del producto.
+- **`inverseJoinColumns`:** Indica la columna que contiene el ID de la categoría.
+
+De esta manera, la tabla intermedia permite relacionar fácilmente los productos con sus diferentes categorías.
+
+---
+
+### Explicación 2: Filtrado dinámico y Repositorios
+
+El filtrado de productos por usuario y categoría se realiza mediante **Spring Data JPA**.
+
+Para buscar los productos de un usuario específico, se pueden crear métodos en el repositorio, como `findByUserId(Long id)`. A partir del nombre del método, Spring Data JPA genera automáticamente la consulta necesaria para buscar los productos que pertenecen a ese usuario.
+
+Estos métodos se utilizan desde la capa de servicio, mientras que el controlador recibe los datos necesarios para realizar el filtro mediante parámetros de consulta (`@RequestParam`) o variables de la URL (`@PathVariable`).
+
+De esta forma, cada capa cumple una función específica y el filtrado se realiza directamente en la base de datos, evitando cargar datos innecesarios.
 
 ## Práctica 10 (Spring Boot): Paginación de Productos con Page, Slice y Pageable
 
@@ -101,6 +167,52 @@
 **Descripción:** `GET` /api/categories/2/products/slice?page=10&size=5
 ![Update](assets/26-Categoria-paginado.png)
 
+## Práctica 10 (Spring Boot): Paginación de Productos con Page, Slice y Pageable
+
+### 1. Paginación General con `Page<T>` (`GET /api/products/page`)
+**Descripción:** Respuesta esperada: Un objeto JSON que incluye la lista content junto con la estructura de metadatos completa (totalElements, totalPages, number, size).
+![notFound](assets/59-1PAg.png)
+
+### 2: Paginación General con `Slice<T>` (`GET /api/products/slice`)
+**Descripción:** Respuesta esperada: Un objeto JSON con el listado content y banderas booleanas simplificadas (first, last, hasNext, hasPrevious, numberOfElements), sin incluir totalElements ni totalPages.
+![notFound](assets/60-Slice.png)
+
+
+### 1. Explicación Técnica: Diferencia entre `Page<T>` y `Slice<T>`
+
+En Spring Data JPA, `Page<T>` y `Slice<T>` permiten dividir grandes cantidades de datos en páginas más pequeñas. La principal diferencia está en la información que devuelven y en la forma en que realizan las consultas a la base de datos.
+
+| Característica | `Page<T>` | `Slice<T>` |
+|---|---|---|
+| **Consulta `COUNT`** | Realiza una consulta adicional para conocer el total de registros. | No realiza una consulta `COUNT`. Solo consulta los datos necesarios. |
+| **Información devuelta** | Proporciona el total de páginas y el total de elementos. | Indica si existe una página siguiente o anterior. |
+| **Rendimiento** | Puede tener un mayor costo debido a la consulta adicional de conteo. | Tiene un mejor rendimiento porque evita la consulta de conteo. |
+| **Uso ideal** | Cuando se necesita mostrar el total de páginas y registros. | Cuando solo se necesita avanzar o retroceder entre páginas, como en un scroll infinito. |
+
+---
+
+### Explicación 1: ¿Por qué `Slice<T>` realiza la consulta usando `size + 1`?
+
+`Slice<T>` necesita saber si existe una página siguiente, pero sin realizar una consulta `COUNT`.
+
+Para lograrlo, Spring Data JPA solicita **un registro adicional** a la cantidad de elementos que debe mostrar.
+
+Por ejemplo, si la página debe mostrar **10 productos**, se solicitan **11 productos**:
+
+- Si se encuentran **11 productos**, significa que existe una página siguiente. El producto adicional se elimina y `hasNext()` devuelve `true`.
+- Si se encuentran **10 productos o menos**, significa que no hay más datos y `hasNext()` devuelve `false`.
+
+De esta manera, `Slice<T>` puede saber si existe una página siguiente sin realizar una consulta adicional para contar todos los registros.
+
+---
+
+## Explicación 2: Impacto en el Rendimiento y Optimización de Consultas
+
+Cuando la base de datos contiene una gran cantidad de registros, realizar una consulta `COUNT(*)` en cada petición puede aumentar el tiempo de respuesta y consumir más recursos.
+
+`Slice<T>` evita esta consulta adicional, ya que solo busca los datos necesarios y un registro extra para comprobar si existe una página siguiente.
+
+Por esta razón, `Slice<T>` puede ofrecer un **mejor rendimiento** cuando no es necesario conocer el número total de páginas o registros.
 
 ## Práctica 11 (Spring Boot): Autenticación JWT, Autorización por Roles y Protección de Endpoints
 
@@ -143,13 +255,21 @@
 ![](assets/35-406-Sin-permisos.png)
 
 
-### 3. asignar ROLE_ADMIN a un usuario (DBeaver)
+### 3. Asignar ROLE_ADMIN a un usuario (DBeaver)
 **Descripción:** Ajusta el `user_id` al del usuario que quieres volver admin — verifica el id real en la tabla users
 ![](assets/36-Permisos.png)
 
 
 ### 4. Login con usuario ADMIN
 ![](assets/37-Autorizacion.png)
+
+
+### 5. Petición Exitosa usando un usuario con rol `ROLE_ADMIN`
+![notFound](assets/61-Token.png)
+
+### 6. Usuario con rol `ROLE_USER` intenta eliminar un registro
+**Descripción:** El usuario 11 está intentando borrar el producto del usuario 1,
+![notFound](assets/62-2.png)
 
 
 ## Práctica 13 (Spring Boot): Validación de Propiedad de Recursos
@@ -177,6 +297,21 @@
 Despues de otorgar permisos de `ROLE_ADMIN`, se vuelve a ejecutar el `DELETE`. Resultado esperado `200 OK`.
 
 ![](assets/45-DELETE.png)
+
+
+### 1. Bloqueo a usuarios estándar (`403 Forbidden`)
+
+Se comprobó que un usuario no puede modificar o eliminar un producto que pertenece a otro usuario.
+
+Cuando el usuario intenta realizar una petición `PUT` o `DELETE` sobre un producto que no le pertenece, el sistema bloquea la operación y devuelve un error `403 Forbidden`.
+
+Esto evita que un usuario pueda modificar o eliminar información de otros usuarios.
+
+### 2. Acceso especial para Administradores
+
+Los usuarios con el rol `ROLE_ADMIN` tienen permisos especiales y pueden ignorar la restricción de propiedad.
+
+Esto permite que un administrador pueda modificar o eliminar cualquier producto del sistema cuando sea necesario, por ejemplo, para realizar tareas de mantenimiento o administración.
 
 ## Práctica 14 (Spring Boot): Renovación de Access Token con Refresh Token
 
